@@ -1,6 +1,12 @@
 package com.leclowndu93150.accelerated_hoppers;
 
+import com.leclowndu93150.accelerated_hoppers.client.WoodenHopperScreen;
 import com.leclowndu93150.accelerated_hoppers.registries.Registry;
+import net.minecraft.client.gui.screens.MenuScreens;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -37,6 +43,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 
 @Mod(AHMain.MODID)
+@EventBusSubscriber(modid = AHMain.MODID, bus = EventBusSubscriber.Bus.MOD)
 public class AHMain {
     public static final String MODID = "accelerated_hoppers";
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -47,7 +54,19 @@ public class AHMain {
         Registry.CREATIVE_MODE_TABS.register(modEventBus);
         Registry.BLOCK_ENTITY_TYPES.register(modEventBus);
         Registry.MENU_TYPES.register(modEventBus);
-        //modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+        modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
+
+    @OnlyIn(Dist.CLIENT)
+    @SubscribeEvent
+    public static void onMenuScreenRegister(RegisterMenuScreensEvent event) {
+        event.register(Registry.WOODEN_HOPPER_CONTAINER.get(), WoodenHopperScreen::new);
+    }
+
+    @SubscribeEvent
+    public static void registerCapabilities(RegisterCapabilitiesEvent event) {
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, Registry.WOODEN_HOPPER_BLOCK_ENTITY_TYPE.get(), (blockEntity, side) -> new NeoForgeWoodenHopperItemHandler(blockEntity));
+    }
+
 
 }
