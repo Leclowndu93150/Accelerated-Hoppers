@@ -1,6 +1,7 @@
 package com.leclowndu93150.accelerated_hoppers;
 
 import com.leclowndu93150.accelerated_hoppers.client.WoodenHopperScreen;
+import com.leclowndu93150.accelerated_hoppers.content.inventory.WoodenHopperItemHandler;
 import com.leclowndu93150.accelerated_hoppers.registries.Registry;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -65,7 +66,7 @@ public class AHMain {
 
     @SubscribeEvent
     public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, Registry.WOODEN_HOPPER_BLOCK_ENTITY_TYPE.get(), (blockEntity, side) -> new NeoForgeWoodenHopperItemHandler(blockEntity));
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, Registry.WOODEN_HOPPER_BLOCK_ENTITY_TYPE.get(), (blockEntity, side) -> new WoodenHopperItemHandler(blockEntity));
     }
 
 
