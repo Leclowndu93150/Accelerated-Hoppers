@@ -2,7 +2,6 @@ package com.leclowndu93150.accelerated_hoppers.content.inventory;
 
 import com.leclowndu93150.accelerated_hoppers.Config;
 import com.leclowndu93150.accelerated_hoppers.content.blockentities.GoldenHopperBlockEntity;
-import com.leclowndu93150.accelerated_hoppers.content.blockentities.WoodenHopperBlockEntity;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.wrapper.InvWrapper;
 import org.jetbrains.annotations.NotNull;
