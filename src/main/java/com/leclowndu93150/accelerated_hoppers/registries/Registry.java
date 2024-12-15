@@ -39,7 +39,7 @@ public class Registry {
 
     //Menu Types
     public static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(Registries.MENU, MODID);
-    public static final DeferredHolder<MenuType<?>, MenuType<?>> WOODEN_HOPPER_CONTAINER = MENU_TYPES.register("wooden_hopper", () -> IMenuTypeExtension.create((pWindowID, pInventory, pData) -> new WoodenHopperContainer(pWindowID, pInventory)));
+    public static final Supplier<MenuType<WoodenHopperContainer>> WOODEN_HOPPER_CONTAINER = MENU_TYPES.register("wooden_hopper", () -> IMenuTypeExtension.create((pWindowID, pInventory, pData) -> new WoodenHopperContainer(pWindowID, pInventory)));
 
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> AH_TAB = CREATIVE_MODE_TABS.register("accelerated_hoppers", () -> CreativeModeTab.builder()
