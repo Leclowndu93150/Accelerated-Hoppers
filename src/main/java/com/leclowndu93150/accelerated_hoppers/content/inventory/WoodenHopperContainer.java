@@ -62,7 +62,7 @@ public class WoodenHopperContainer extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(net.minecraft.world.entity.player.Player player) {
-        return this.stillValid(player);
+        return this.hopper.stillValid(player);
     }
 
     @Override
