@@ -46,7 +46,7 @@ import java.util.function.Supplier;
 public class DiamondHopperBlockEntity extends RandomizableContainerBlockEntity implements Hopper {
     protected int transferCooldown = Config.diamondHopperTransferCooldown;
     protected long tickedGameTime;
-    private ItemStackHandler inventory = new ItemStackHandler();
+    private ItemStackHandler inventory = new ItemStackHandler(5);
 
     public DiamondHopperBlockEntity(BlockPos pos, BlockState state) {
         super(Registry.DIAMOND_HOPPER_BLOCK_ENTITY_TYPE.get(), pos, state);
@@ -111,13 +111,21 @@ public class DiamondHopperBlockEntity extends RandomizableContainerBlockEntity i
     @Override
     @NotNull
     protected NonNullList<ItemStack> getItems() {
-        return NonNullList.withSize(1, this.inventory.getStackInSlot(0));
+        NonNullList<ItemStack> items = NonNullList.withSize(this.inventory.getSlots(), ItemStack.EMPTY);
+        for (int i = 0; i < this.inventory.getSlots(); i++) {
+            items.set(i, this.inventory.getStackInSlot(i));
+        }
+        return items;
     }
 
     @Override
     protected void setItems(@NotNull NonNullList<ItemStack> itemsIn) {
-        if (itemsIn.size() == 1) {
-            this.inventory.setStackInSlot(0, itemsIn.getFirst());
+        for (int i = 0; i < this.inventory.getSlots(); i++) {
+            if (i < itemsIn.size()) {
+                this.inventory.setStackInSlot(i, itemsIn.get(i));
+            } else {
+                this.inventory.setStackInSlot(i, ItemStack.EMPTY);
+            }
         }
     }
 
@@ -274,8 +282,10 @@ public class DiamondHopperBlockEntity extends RandomizableContainerBlockEntity i
             if (!extractItem.isEmpty()) {
                 for (int j = 0; j < this.getContainerSize(); j++) {
                     ItemStack destStack = this.getItem(j);
-                    if (this.canPlaceItem(j, extractItem) && (destStack.isEmpty() || destStack.getCount() < destStack.getMaxStackSize()
-                            && destStack.getCount() < this.getMaxStackSize() && ItemStack.isSameItemSameComponents(extractItem, destStack))) {
+                    if (this.canPlaceItem(j, extractItem) &&
+                            (destStack.isEmpty() || (destStack.getCount() < destStack.getMaxStackSize() &&
+                                    destStack.getCount() < this.getMaxStackSize() &&
+                                    ItemStack.isSameItemSameComponents(extractItem, destStack)))) {
                         extractItem = handler.extractItem(i, 1, false);
                         if (destStack.isEmpty()) {
                             this.setItem(j, extractItem);
@@ -349,7 +359,6 @@ public class DiamondHopperBlockEntity extends RandomizableContainerBlockEntity i
                                 this.setItem(i, originalSlotContents);
                             }
                         }
-
                     }
                     return false;
                 })
