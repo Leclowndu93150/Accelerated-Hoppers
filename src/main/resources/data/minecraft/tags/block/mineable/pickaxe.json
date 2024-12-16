@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "accelerated_hoppers:iron_hopper",
+    "accelerated_hoppers:golden_hopper",
+    "accelerated_hoppers:diamond_hopper",
+    "accelerated_hoppers:netherite_hopper"
+  ]
+}

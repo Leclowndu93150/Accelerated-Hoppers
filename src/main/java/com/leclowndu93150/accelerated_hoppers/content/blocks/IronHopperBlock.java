@@ -4,6 +4,7 @@ import com.leclowndu93150.accelerated_hoppers.Config;
 import com.leclowndu93150.accelerated_hoppers.content.blockentities.IronHopperBlockEntity;
 import com.leclowndu93150.accelerated_hoppers.content.blockentities.WoodenHopperBlockEntity;
 import com.leclowndu93150.accelerated_hoppers.registries.Registry;
+import com.leclowndu93150.accelerated_hoppers.utils.TooltipUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -85,7 +86,7 @@ public class IronHopperBlock extends HopperBlock {
 
     @Override
     public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-        tooltipComponents.add(Component.literal("Speed: " + Config.ironHopperTransferCooldown + " ticks per item").withStyle(ChatFormatting.GRAY));
+        TooltipUtil.addTooltip(tooltipComponents, Config.ironHopperTransferCooldown);
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
     }
 }

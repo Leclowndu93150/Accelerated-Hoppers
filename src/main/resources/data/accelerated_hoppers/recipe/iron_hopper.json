@@ -8,13 +8,13 @@
   ],
   "key": {
     "W": {
-      "item": "#minecraft:planks"
+      "item": "minecraft:iron_ingot"
     },
     "C": {
-      "item": "#c:chests/wooden"
+      "item": "minecraft:hopper"
     }
   },
   "result": {
-    "id": "accelerated_hoppers:wooden_hopper"
+    "id": "accelerated_hoppers:iron_hopper"
   }
 }
