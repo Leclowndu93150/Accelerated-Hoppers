@@ -24,6 +24,9 @@ public class Config
     private static final ModConfigSpec.IntValue DIAMOND_HOPPER_TRANSFER_COOLDOWN = BUILDER.comment("The number of ticks between each transfer operation for diamond hoppers.")
             .defineInRange("diamondHopperTransferCooldown", 2, 1, Integer.MAX_VALUE);
 
+    private static final ModConfigSpec.IntValue EMERALD_HOPPER_TRANSFER_COOLDOWN = BUILDER.comment("The number of ticks between each transfer operation for emerald hoppers.")
+            .defineInRange("emeraldHopperTransferCooldown", 2, 1, Integer.MAX_VALUE);
+
     private static final ModConfigSpec.IntValue NETHERITE_HOPPER_TRANSFER_COOLDOWN = BUILDER.comment("The number of ticks between each transfer operation for netherite hoppers.")
             .defineInRange("netheriteHopperTransferCooldown", 1, 1, Integer.MAX_VALUE);
 
@@ -33,6 +36,7 @@ public class Config
     public static int ironHopperTransferCooldown;
     public static int goldenHopperTransferCooldown;
     public static int diamondHopperTransferCooldown;
+    public static int emeraldHopperTransferCooldown;
     public static int netheriteHopperTransferCooldown;
 
 
@@ -43,6 +47,7 @@ public class Config
         ironHopperTransferCooldown = IRON_HOPPER_TRANSFER_COOLDOWN.get();
         goldenHopperTransferCooldown = GOLDEN_HOPPER_TRANSFER_COOLDOWN.get();
         diamondHopperTransferCooldown = DIAMOND_HOPPER_TRANSFER_COOLDOWN.get();
+        emeraldHopperTransferCooldown = EMERALD_HOPPER_TRANSFER_COOLDOWN.get();
         netheriteHopperTransferCooldown = NETHERITE_HOPPER_TRANSFER_COOLDOWN.get();
 
     }

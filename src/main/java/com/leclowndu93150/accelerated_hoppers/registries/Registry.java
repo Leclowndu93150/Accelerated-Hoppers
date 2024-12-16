@@ -33,12 +33,14 @@ public class Registry {
     public static final DeferredBlock<IronHopperBlock> IRON_HOPPER = BLOCKS.register("iron_hopper", () -> new IronHopperBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.HOPPER)));
     public static final DeferredBlock<GoldenHopperBlock> GOLDEN_HOPPER = BLOCKS.register("golden_hopper", () -> new GoldenHopperBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.HOPPER)));
     public static final DeferredBlock<DiamondHopperBlock> DIAMOND_HOPPER = BLOCKS.register("diamond_hopper", () -> new DiamondHopperBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.HOPPER)));
+    public static final DeferredBlock<EmeraldHopperBlock> EMERALD_HOPPER = BLOCKS.register("emerald_hopper", () -> new EmeraldHopperBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.HOPPER)));
     public static final DeferredBlock<NetheriteHopperBlock> NETHERITE_HOPPER = BLOCKS.register("netherite_hopper", () -> new NetheriteHopperBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.HOPPER)));
 
     public static final DeferredItem<BlockItem> WOODEN_HOPPER_ITEM = ITEMS.register("wooden_hopper", () -> new BlockItem(WOODEN_HOPPER.get(), new Item.Properties()));
     public static final DeferredItem<BlockItem> IRON_HOPPER_ITEM = ITEMS.register("iron_hopper", () -> new BlockItem(IRON_HOPPER.get(), new Item.Properties()));
     public static final DeferredItem<BlockItem> GOLDEN_HOPPER_ITEM = ITEMS.register("golden_hopper", () -> new BlockItem(GOLDEN_HOPPER.get(), new Item.Properties()));
     public static final DeferredItem<BlockItem> DIAMOND_HOPPER_ITEM = ITEMS.register("diamond_hopper", () -> new BlockItem(DIAMOND_HOPPER.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> EMERALD_HOPPER_ITEM = ITEMS.register("emerald_hopper", () -> new BlockItem(EMERALD_HOPPER.get(), new Item.Properties()));
     public static final DeferredItem<BlockItem> NETHERITE_HOPPER_ITEM = ITEMS.register("netherite_hopper", () -> new BlockItem(NETHERITE_HOPPER.get(), new Item.Properties()));
 
 
@@ -49,6 +51,7 @@ public class Registry {
     public static final Supplier<BlockEntityType<IronHopperBlockEntity>> IRON_HOPPER_BLOCK_ENTITY_TYPE = BLOCK_ENTITY_TYPES.register("iron_hopper", () -> BlockEntityType.Builder.of(IronHopperBlockEntity::new, IRON_HOPPER.get()).build(null));
     public static final Supplier<BlockEntityType<GoldenHopperBlockEntity>> GOLDEN_HOPPER_BLOCK_ENTITY_TYPE = BLOCK_ENTITY_TYPES.register("golden_hopper", () -> BlockEntityType.Builder.of(GoldenHopperBlockEntity::new, GOLDEN_HOPPER.get()).build(null));
     public static final Supplier<BlockEntityType<DiamondHopperBlockEntity>> DIAMOND_HOPPER_BLOCK_ENTITY_TYPE = BLOCK_ENTITY_TYPES.register("diamond_hopper", () -> BlockEntityType.Builder.of(DiamondHopperBlockEntity::new, DIAMOND_HOPPER.get()).build(null));
+    public static final Supplier<BlockEntityType<EmeraldHopperBlockEntity>> EMERALD_HOPPER_BLOCK_ENTITY_TYPE = BLOCK_ENTITY_TYPES.register("emerald_hopper", () -> BlockEntityType.Builder.of(EmeraldHopperBlockEntity::new, EMERALD_HOPPER.get()).build(null));
     public static final Supplier<BlockEntityType<NetheriteHopperBlockEntity>> NETHERITE_HOPPER_BLOCK_ENTITY_TYPE = BLOCK_ENTITY_TYPES.register("netherite_hopper", () -> BlockEntityType.Builder.of(NetheriteHopperBlockEntity::new, NETHERITE_HOPPER.get()).build(null));
 
     //Menu Types
@@ -65,6 +68,7 @@ public class Registry {
                 output.accept(IRON_HOPPER_ITEM.get());
                 output.accept(GOLDEN_HOPPER_ITEM.get());
                 output.accept(DIAMOND_HOPPER_ITEM.get());
+                output.accept(EMERALD_HOPPER_ITEM.get());
                 output.accept(NETHERITE_HOPPER_ITEM.get());
             }).build());
 
