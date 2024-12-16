@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    "W W",
+    "WCW",
+    " W "
+  ],
+  "key": {
+    "W": {
+      "item": "minecraft:emerald"
+    },
+    "C": {
+      "item": "accelerated_hoppers:golden_hopper"
+    }
+  },
+  "result": {
+    "id": "accelerated_hoppers:emerald_hopper"
+  }
+}
