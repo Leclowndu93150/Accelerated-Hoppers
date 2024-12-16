@@ -75,6 +75,7 @@ public class AHMain {
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, Registry.DIAMOND_HOPPER_BLOCK_ENTITY_TYPE.get(), (blockEntity, side) -> new DiamondHopperItemHandler(blockEntity));
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, Registry.EMERALD_HOPPER_BLOCK_ENTITY_TYPE.get(), (blockEntity, side) -> new EmeraldHopperItemHandler(blockEntity));
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, Registry.NETHERITE_HOPPER_BLOCK_ENTITY_TYPE.get(), (blockEntity, side) -> new NetheriteHopperItemHandler(blockEntity));
+        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, Registry.FLOPPER_BLOCK_ENTITY_TYPE.get(), (blockEntity, side) -> new FlopperFluidHandler(blockEntity));
     }
 
 
