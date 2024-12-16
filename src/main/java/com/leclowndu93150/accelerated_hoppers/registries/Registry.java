@@ -62,7 +62,7 @@ public class Registry {
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> AH_TAB = CREATIVE_MODE_TABS.register("accelerated_hoppers", () -> CreativeModeTab.builder()
             .title(Component.literal("Accelerated Hoppers"))
-            .icon(() -> Items.IRON_BLOCK.getDefaultInstance())
+            .icon(() -> DIAMOND_HOPPER_ITEM.get().getDefaultInstance())
             .displayItems((parameters, output) -> {
                 output.accept(WOODEN_HOPPER_ITEM.get());
                 output.accept(IRON_HOPPER_ITEM.get());
