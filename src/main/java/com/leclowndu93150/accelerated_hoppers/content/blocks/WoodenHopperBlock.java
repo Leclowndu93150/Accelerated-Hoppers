@@ -3,6 +3,7 @@ package com.leclowndu93150.accelerated_hoppers.content.blocks;
 import com.leclowndu93150.accelerated_hoppers.Config;
 import com.leclowndu93150.accelerated_hoppers.content.blockentities.WoodenHopperBlockEntity;
 import com.leclowndu93150.accelerated_hoppers.registries.Registry;
+import com.leclowndu93150.accelerated_hoppers.utils.TooltipUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -84,7 +85,7 @@ public class WoodenHopperBlock extends HopperBlock {
 
     @Override
     public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-        tooltipComponents.add(Component.literal("Speed: " + Config.woodenHopperTransferCooldown + " ticks per item").withStyle(ChatFormatting.GRAY));
+        TooltipUtil.addTooltip(tooltipComponents,Config.woodenHopperTransferCooldown);
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
     }
 }
