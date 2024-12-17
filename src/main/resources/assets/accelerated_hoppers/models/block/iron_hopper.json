@@ -1,11 +1,11 @@
 {
     "ambientocclusion": false,
     "textures": {
-        "particle": "accelerated_hoppers:block/iron_hopper_outside",
-        "top": "accelerated_hoppers:block/iron_hopper_top",
-        "bottom": "accelerated_hoppers:block/iron_hopper_bottom",
-        "side": "accelerated_hoppers:block/iron_hopper_outside",
-        "inside": "accelerated_hoppers:block/iron_hopper_inside"
+        "particle": "minecraft:block/iron_block",
+        "top": "minecraft:block/iron_block",
+        "bottom": "minecraft:block/iron_block",
+        "side": "minecraft:block/iron_block",
+        "inside": "minecraft:block/iron_block"
     },
     "elements": [
         {   "from": [ 0, 10, 0 ],

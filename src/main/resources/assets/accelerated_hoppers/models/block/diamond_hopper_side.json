@@ -1,11 +1,11 @@
 {
     "ambientocclusion": false,
     "textures": {
-        "particle": "accelerated_hoppers:block/diamond_hopper_outside",
-        "top": "accelerated_hoppers:block/diamond_hopper_top",
-        "bottom": "accelerated_hoppers:block/diamond_hopper_bottom",
-        "side": "accelerated_hoppers:block/diamond_hopper_outside",
-        "inside": "accelerated_hoppers:block/diamond_hopper_inside"
+        "particle": "minecraft:block/diamond_block",
+        "top": "minecraft:block/diamond_block",
+        "bottom": "minecraft:block/diamond_block",
+        "side": "minecraft:block/diamond_block",
+        "inside": "minecraft:block/diamond_block"
     },
     "elements": [
         {   "from": [ 0, 10, 0 ],

@@ -1,11 +1,11 @@
 {
     "ambientocclusion": false,
     "textures": {
-        "particle": "accelerated_hoppers:block/golden_hopper_outside",
-        "top": "accelerated_hoppers:block/golden_hopper_top",
-        "bottom": "accelerated_hoppers:block/golden_hopper_bottom",
-        "side": "accelerated_hoppers:block/golden_hopper_outside",
-        "inside": "accelerated_hoppers:block/golden_hopper_inside"
+        "particle": "minecraft:block/gold_block",
+        "top": "minecraft:block/gold_block",
+        "bottom": "minecraft:block/gold_block",
+        "side": "minecraft:block/gold_block",
+        "inside": "minecraft:block/gold_block"
     },
     "elements": [
         {   "from": [ 0, 10, 0 ],
