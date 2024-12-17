@@ -1,11 +1,11 @@
 {
     "ambientocclusion": false,
     "textures": {
-        "particle": "accelerated_hoppers:block/netherite_hopper_outside",
-        "top": "accelerated_hoppers:block/netherite_hopper_top",
-        "bottom": "accelerated_hoppers:block/netherite_hopper_bottom",
-        "side": "accelerated_hoppers:block/netherite_hopper_outside",
-        "inside": "accelerated_hoppers:block/netherite_hopper_inside"
+        "particle": "minecraft:block/netherite_block",
+        "top": "minecraft:block/netherite_block",
+        "bottom": "minecraft:block/netherite_block",
+        "side": "minecraft:block/netherite_block",
+        "inside": "minecraft:block/netherite_block"
     },
     "elements": [
         {   "from": [ 0, 10, 0 ],

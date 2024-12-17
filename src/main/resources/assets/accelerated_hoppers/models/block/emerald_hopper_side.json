@@ -1,11 +1,11 @@
 {
     "ambientocclusion": false,
     "textures": {
-        "particle": "accelerated_hoppers:block/emerald_hopper_outside",
-        "top": "accelerated_hoppers:block/emerald_hopper_top",
-        "bottom": "accelerated_hoppers:block/emerald_hopper_bottom",
-        "side": "accelerated_hoppers:block/emerald_hopper_outside",
-        "inside": "accelerated_hoppers:block/emerald_hopper_inside"
+        "particle": "minecraft:block/emerald_block",
+        "top": "minecraft:block/emerald_block",
+        "bottom": "minecraft:block/emerald_block",
+        "side": "minecraft:block/emerald_block",
+        "inside": "minecraft:block/emerald_block"
     },
     "elements": [
         {   "from": [ 0, 10, 0 ],
