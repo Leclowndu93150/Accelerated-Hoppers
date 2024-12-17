@@ -1,11 +1,11 @@
 {
     "ambientocclusion": false,
     "textures": {
-        "particle": "minecraft:block/emerald_block",
-        "top": "minecraft:block/emerald_block",
-        "bottom": "minecraft:block/emerald_block",
-        "side": "minecraft:block/emerald_block",
-        "inside": "minecraft:block/emerald_block"
+        "particle": "minecraft:block/filtered_block",
+        "top": "minecraft:block/filtered_block",
+        "bottom": "minecraft:block/filtered_block",
+        "side": "minecraft:block/filtered_block",
+        "inside": "minecraft:block/filtered_block"
     },
     "elements": [
         {   "from": [ 0, 10, 0 ],

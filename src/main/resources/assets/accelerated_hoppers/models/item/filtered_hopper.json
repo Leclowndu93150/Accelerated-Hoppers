@@ -1,6 +1,6 @@
 {
     "parent": "minecraft:item/generated",
     "textures": {
-        "layer0": "accelerated_hoppers:item/emerald_hopper"
+        "layer0": "accelerated_hoppers:item/filtered_hopper"
     }
 }

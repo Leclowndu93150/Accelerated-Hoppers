@@ -42,13 +42,13 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public class EmeraldHopperBlockEntity extends RandomizableContainerBlockEntity implements Hopper {
-    protected int transferCooldown = Config.emeraldHopperTransferCooldown;
+public class FilteredHopperBlockEntity extends RandomizableContainerBlockEntity implements Hopper {
+    protected int transferCooldown = Config.filteredHopperTransferCooldown;
     protected long tickedGameTime;
     private ItemStackHandler inventory = new ItemStackHandler(5);
 
-    public EmeraldHopperBlockEntity(BlockPos pos, BlockState state) {
-        super(Registry.EMERALD_HOPPER_BLOCK_ENTITY_TYPE.get(), pos, state);
+    public FilteredHopperBlockEntity(BlockPos pos, BlockState state) {
+        super(Registry.FILTERED_HOPPER_BLOCK_ENTITY_TYPE.get(), pos, state);
     }
 
     @Override
@@ -73,7 +73,7 @@ public class EmeraldHopperBlockEntity extends RandomizableContainerBlockEntity i
     @Override
     @NotNull
     protected Component getDefaultName() {
-        return Component.literal("Emerald Hopper");
+        return Component.literal("Filtered Hopper");
     }
 
     @Override
@@ -163,19 +163,19 @@ public class EmeraldHopperBlockEntity extends RandomizableContainerBlockEntity i
     }
 
     public boolean mayNotTransfer() {
-        return this.transferCooldown <= Config.emeraldHopperTransferCooldown;
+        return this.transferCooldown <= Config.filteredHopperTransferCooldown;
     }
 
     protected long getLastUpdateTime() {
         return this.tickedGameTime;
     }
 
-    public static List<Entity> getAllAliveEntitiesAt(Level level, double x, double y, double z, Predicate<? super Entity> filter) {
+    public static List<Entity> getAllAliveEntitiesAt(Level level, double x, double y, double z, Predicate<? super Entity> filtered) {
         return level.getEntities((Entity) null, new AABB(x - 0.5D, y - 0.5D, z - 0.5D, x + 0.5D, y + 0.5D, z + 0.5D),
-                entity -> entity.isAlive() && filter.test(entity));
+                entity -> entity.isAlive() && filtered.test(entity));
     }
 
-    public static void tick(Level level, BlockPos pos, BlockState state, EmeraldHopperBlockEntity entity) {
+    public static void tick(Level level, BlockPos pos, BlockState state, FilteredHopperBlockEntity entity) {
         if (level != null && !level.isClientSide) {
             entity.transferCooldown--;
             entity.tickedGameTime = level.getGameTime();
@@ -195,19 +195,20 @@ public class EmeraldHopperBlockEntity extends RandomizableContainerBlockEntity i
         for (int slot = 0; slot < destInventory.getSlots() && !stack.isEmpty(); slot++) {
             stack = insertStack(source, destination, destInventory, stack, slot);
         }
-        return stack;
+        return stack; // This will now likely be an empty stack if fully inserted
     }
 
     private ItemStack insertStack(BlockEntity source, Object destination, IItemHandler destInventory, ItemStack stack, int slot) {
         ItemStack result = stack;
-        if (!destInventory.insertItem(slot, stack, true).equals(stack)) {
-            boolean inventoryWasEmpty = isEmpty(destInventory);
-            result = destInventory.insertItem(slot, stack, false);
-            if (result.getCount() < stack.getCount()) {
-                updateCooldown(inventoryWasEmpty, source, destination);
-            }
+        if (canInsertItemIntoSlot(destInventory, stack, slot)) {
+            ItemStack remainingStack = destInventory.insertItem(slot, stack, false);
+            return remainingStack; // Return whatever couldn't be inserted
         }
         return result;
+    }
+
+    private boolean canInsertItemIntoSlot(IItemHandler inventory, ItemStack stack, int slot) {
+        return inventory.insertItem(slot, stack, true).getCount() < stack.getCount();
     }
 
     protected Optional<Pair<Object, Object>> getItemHandler(Level level, double x, double y, double z, final Direction side) {
@@ -221,7 +222,6 @@ public class EmeraldHopperBlockEntity extends RandomizableContainerBlockEntity i
                     return Optional.of(ImmutablePair.of(handler, blockEntity));
                 }
             }
-            // Support vanilla inventory block entities without IItemHandler
             if (blockEntity instanceof WorldlyContainer container) {
                 return Optional.of(ImmutablePair.of(new SidedInvWrapper(container, side), state));
             }
@@ -229,12 +229,10 @@ public class EmeraldHopperBlockEntity extends RandomizableContainerBlockEntity i
                 return Optional.of(ImmutablePair.of(new InvWrapper(container), state));
             }
         }
-        // Support vanilla inventory blocks without IItemHandler
         Block block = state.getBlock();
         if (block instanceof WorldlyContainerHolder) {
             return Optional.of(ImmutablePair.of(new SidedInvWrapper(((WorldlyContainerHolder) block).getContainer(state, level, blockpos), side), state));
         }
-        // Get entities with item handlers
         List<Entity> list = getAllAliveEntitiesAt(level, x, y, z,
                 entity -> entity instanceof Container || !(entity instanceof LivingEntity) && entity.getCapability(Capabilities.ItemHandler.ENTITY_AUTOMATION, side) != null);
         if (!list.isEmpty()) {
@@ -279,21 +277,15 @@ public class EmeraldHopperBlockEntity extends RandomizableContainerBlockEntity i
         for (int i = 0; i < handler.getSlots(); i++) {
             ItemStack extractItem = handler.extractItem(i, 1, true);
             if (!extractItem.isEmpty()) {
-                for (int j = 0; j < this.getContainerSize(); j++) {
-                    ItemStack destStack = this.getItem(j);
-                    if (this.canPlaceItem(j, extractItem) &&
-                            (destStack.isEmpty() || (destStack.getCount() < destStack.getMaxStackSize() &&
-                                    destStack.getCount() < this.getMaxStackSize() &&
-                                    ItemStack.isSameItemSameComponents(extractItem, destStack)))) {
-                        extractItem = handler.extractItem(i, 1, false);
+                if (isItemAllowedByFilter(extractItem)) {
+                    for (int j = 0; j < this.getContainerSize(); j++) {
+                        ItemStack destStack = this.getItem(j);
                         if (destStack.isEmpty()) {
+                            extractItem = handler.extractItem(i, 1, false);
                             this.setItem(j, extractItem);
-                        } else {
-                            destStack.grow(1);
-                            this.setItem(j, destStack);
+                            this.setChanged();
+                            return true;
                         }
-                        this.setChanged();
-                        return true;
                     }
                 }
             }
@@ -301,17 +293,33 @@ public class EmeraldHopperBlockEntity extends RandomizableContainerBlockEntity i
         return false;
     }
 
+    private boolean isItemAllowedByFilter(ItemStack itemToCheck) {
+        boolean hasAnyFilter = false;
+
+        for (int i = 0; i < 5; i++) {
+            ItemStack filterStack = this.getItem(i);
+            if (!filterStack.isEmpty()) {
+                hasAnyFilter = true;
+                if (filterStack.getItem() == itemToCheck.getItem()) {
+                   return true;
+                }
+            }
+        }
+
+        return !hasAnyFilter;
+    }
+
     protected Object getOwnItemHandler() {
         return this.inventory;
     }
 
     protected void updateCooldown(boolean inventoryWasEmpty, BlockEntity source, Object destination) {
-        if (inventoryWasEmpty && destination instanceof EmeraldHopperBlockEntity destinationHopper && destinationHopper.mayNotTransfer()) {
+        if (inventoryWasEmpty && destination instanceof FilteredHopperBlockEntity destinationHopper && destinationHopper.mayNotTransfer()) {
             int k = 0;
-            if (source instanceof EmeraldHopperBlockEntity && destinationHopper.getLastUpdateTime() >= ((EmeraldHopperBlockEntity) source).getLastUpdateTime()) {
+            if (source instanceof FilteredHopperBlockEntity && destinationHopper.getLastUpdateTime() >= ((FilteredHopperBlockEntity) source).getLastUpdateTime()) {
                 k = 1;
             }
-            destinationHopper.setTransferCooldown(Config.emeraldHopperTransferCooldown - k);
+            destinationHopper.setTransferCooldown(Config.filteredHopperTransferCooldown - k);
         }
     }
 
@@ -326,14 +334,14 @@ public class EmeraldHopperBlockEntity extends RandomizableContainerBlockEntity i
                     flag |= p_200109_1_.get();
                 }
                 if (flag) {
-                    this.setTransferCooldown(Config.emeraldHopperTransferCooldown);
+                    this.setTransferCooldown(Config.filteredHopperTransferCooldown);
                     this.setChanged();
                 }
             }
         }
     }
 
-    private Optional<Pair<Object, Object>> getItemHandler(EmeraldHopperBlockEntity hopper, Direction hopperFacing) {
+    private Optional<Pair<Object, Object>> getItemHandler(FilteredHopperBlockEntity hopper, Direction hopperFacing) {
         double x = hopper.getLevelX() + (double) hopperFacing.getStepX();
         double y = hopper.getLevelY() + (double) hopperFacing.getStepY();
         double z = hopper.getLevelZ() + (double) hopperFacing.getStepZ();
@@ -344,35 +352,62 @@ public class EmeraldHopperBlockEntity extends RandomizableContainerBlockEntity i
         Direction hopperFacing = this.getBlockState().getValue(HopperBlock.FACING);
         return getItemHandler(this, hopperFacing)
                 .map(destinationResult -> {
-                    Object itemHandler = destinationResult.getKey();
+                    Object destItemHandler = destinationResult.getKey();
                     Object destination = destinationResult.getValue();
-                    if (isNotFull(itemHandler)) {
-                        for (int i = 0; i < this.getContainerSize(); ++i) {
-                            if (!this.getItem(i).isEmpty()) {
-                                ItemStack originalSlotContents = this.getItem(i).copy();
-                                ItemStack insertStack = this.removeItem(i, 1);
-                                ItemStack remainder = putStackInInventoryAllSlots(this, destination, itemHandler, insertStack);
-                                if (remainder.isEmpty()) {
-                                    return true;
+
+                    Optional<Pair<Object, Object>> sourceResult = getItemHandler(this, Direction.UP);
+
+                    return sourceResult.map(sourceInventoryResult -> {
+                        Object sourceItemHandler = sourceInventoryResult.getKey();
+
+                        for (int sourceSlot = 0; sourceSlot < ((IItemHandler)sourceItemHandler).getSlots(); sourceSlot++) {
+                            ItemStack sourceStack = ((IItemHandler)sourceItemHandler).getStackInSlot(sourceSlot);
+
+                            if (!sourceStack.isEmpty() && isItemAllowedByFilter(sourceStack)) {
+                                ItemStack extractedStack = ((IItemHandler)sourceItemHandler).extractItem(sourceSlot, 1, true);
+
+                                if (!extractedStack.isEmpty()) {
+                                    ItemStack remainingStack = insertItemDirectlyIntoDestination(destItemHandler, extractedStack);
+
+                                    if (remainingStack.isEmpty()) {
+                                        ((IItemHandler)sourceItemHandler).extractItem(sourceSlot, 1, false);
+                                        return true;
+                                    }
                                 }
-                                this.setItem(i, originalSlotContents);
                             }
                         }
-                    }
-                    return false;
+
+                        return false;
+                    }).orElse(false);
                 })
                 .orElse(false);
+    }
+
+    private ItemStack insertItemDirectlyIntoDestination(Object destInventoryObj, ItemStack stack) {
+        IItemHandler destInventory = (IItemHandler) destInventoryObj;
+
+        for (int slot = 0; slot < destInventory.getSlots(); slot++) {
+            ItemStack remainingStack = destInventory.insertItem(slot, stack, false);
+
+            if (remainingStack.getCount() < stack.getCount()) {
+                return remainingStack;
+            }
+        }
+
+        return stack;
     }
 
     private boolean captureItem(ItemEntity itemEntity) {
         boolean flag = false;
         ItemStack itemstack = itemEntity.getItem().copy();
-        ItemStack itemstack1 = putStackInInventoryAllSlots(null, this, getOwnItemHandler(), itemstack);
-        if (itemstack1.isEmpty()) {
-            flag = true;
-            itemEntity.remove(Entity.RemovalReason.DISCARDED);
-        } else {
-            itemEntity.setItem(itemstack1);
+        if (isItemAllowedByFilter(itemstack)) {
+            ItemStack itemstack1 = putStackInInventoryAllSlots(null, this, getOwnItemHandler(), itemstack);
+            if (itemstack1.isEmpty()) {
+                flag = true;
+                itemEntity.remove(Entity.RemovalReason.DISCARDED);
+            } else {
+                itemEntity.setItem(itemstack1);
+            }
         }
         return flag;
     }

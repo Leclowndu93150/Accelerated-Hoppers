@@ -1,18 +1,16 @@
 package com.leclowndu93150.accelerated_hoppers.content.inventory;
 
 import com.leclowndu93150.accelerated_hoppers.Config;
-import com.leclowndu93150.accelerated_hoppers.content.blockentities.DiamondHopperBlockEntity;
-import com.leclowndu93150.accelerated_hoppers.content.blockentities.EmeraldHopperBlockEntity;
-import net.minecraft.world.Container;
+import com.leclowndu93150.accelerated_hoppers.content.blockentities.FilteredHopperBlockEntity;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.wrapper.InvWrapper;
 import org.jetbrains.annotations.NotNull;
 
-public class EmeraldHopperItemHandler extends InvWrapper
+public class FilteredHopperItemHandler extends InvWrapper
 {
-    private final EmeraldHopperBlockEntity hopper;
+    private final FilteredHopperBlockEntity hopper;
 
-    public EmeraldHopperItemHandler(EmeraldHopperBlockEntity hopper) {
+    public FilteredHopperItemHandler(FilteredHopperBlockEntity hopper) {
         super(hopper);
         this.hopper = hopper;
     }
@@ -31,7 +29,7 @@ public class EmeraldHopperItemHandler extends InvWrapper
             {
                 if (hopper.mayNotTransfer())
                 {
-                    hopper.setTransferCooldown(Config.emeraldHopperTransferCooldown);
+                    hopper.setTransferCooldown(Config.filteredHopperTransferCooldown);
                 }
             }
             return stack;
