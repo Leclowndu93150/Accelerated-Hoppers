@@ -1,5 +1,6 @@
 package com.leclowndu93150.accelerated_hoppers;
 
+import com.leclowndu93150.accelerated_hoppers.client.FilterHopperScreen;
 import com.leclowndu93150.accelerated_hoppers.client.OtherHopperScreen;
 import com.leclowndu93150.accelerated_hoppers.client.WoodenHopperScreen;
 import com.leclowndu93150.accelerated_hoppers.content.inventory.*;
@@ -41,6 +42,7 @@ public class AHMain {
     public static void onMenuScreenRegister(RegisterMenuScreensEvent event) {
         event.register(Registry.WOODEN_HOPPER_CONTAINER.get(), WoodenHopperScreen::new);
         event.register(Registry.OTHER_HOPPER_CONTAINER.get(), OtherHopperScreen::new);
+        event.register(Registry.FILTER_HOPPER_CONTAINER.get(), FilterHopperScreen::new);
     }
 
     @SubscribeEvent

@@ -16,23 +16,14 @@ public class FilteredHopperItemHandler extends InvWrapper
     }
 
     @Override
+    public int getSlotLimit(int slot) {
+        return 1;
+    }
+
+    @Override
     @NotNull
     public ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate)
     {
-        if (simulate) {
-            return super.insertItem(slot, stack, true);
-        } else {
-            boolean wasEmpty = getInv().isEmpty();
-            int originalStackSize = stack.getCount();
-            stack = super.insertItem(slot, stack, false);
-            if (wasEmpty && originalStackSize > stack.getCount())
-            {
-                if (hopper.mayNotTransfer())
-                {
-                    hopper.setTransferCooldown(Config.filteredHopperTransferCooldown);
-                }
-            }
-            return stack;
-        }
+        return stack;
     }
 }
