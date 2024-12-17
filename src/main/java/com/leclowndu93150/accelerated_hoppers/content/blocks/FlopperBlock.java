@@ -14,16 +14,19 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.HopperBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -53,8 +56,82 @@ public class FlopperBlock extends HopperBlock {
             return InteractionResult.SUCCESS;
         } else {
             BlockEntity blockEntity = worldIn.getBlockEntity(pos);
+            ItemStack stack = player.getItemInHand(player.getUsedItemHand());
             if (blockEntity instanceof FlopperBlockEntity) {
                 player.awardStat(Stats.INSPECT_HOPPER);
+                IFluidHandler handler = stack.getCapability(Capabilities.FluidHandler.ITEM);
+
+                // Buckets
+                if (((FlopperBlockEntity) blockEntity).getTank().getCapacity() >= 1000) {
+                    if (stack.getItem() instanceof BucketItem && ((BucketItem) stack.getItem()).content != Fluids.EMPTY) {
+                        FluidTank tank = ((FlopperBlockEntity) blockEntity).getTank();
+                        if (tank.getFluid().isEmpty()) {
+                            FluidStack fluidStack = new FluidStack(((BucketItem) stack.getItem()).content, 1000);
+                            tank.setFluid(fluidStack);
+                            stack.shrink(1);
+                            System.out.println("set fluid in tank - stack amount: " + stack.getCount());
+                            if (stack.isEmpty()) {
+                                System.out.println("empty stack");
+                                player.setItemInHand(player.getUsedItemHand(), new ItemStack(Items.BUCKET));
+                            } else {
+                                player.addItem(new ItemStack(Items.BUCKET));
+                            }
+                        } else if (tank.getFluid().getFluid().equals(((BucketItem) stack.getItem()).content) && tank.getCapacity() - tank.getFluidAmount() >= 1000) {
+                            tank.fill(new FluidStack(((BucketItem) stack.getItem()).content, 1000), IFluidHandler.FluidAction.EXECUTE);
+                            stack.shrink(1);
+                            System.out.println("fillin tank - stack amount: " + stack.getCount());
+                            if (stack.isEmpty()) {
+                                System.out.println("empty stack");
+                                player.setItemInHand(player.getUsedItemHand(), new ItemStack(Items.BUCKET));
+                            } else {
+                                player.addItem(new ItemStack(Items.BUCKET));
+                            }
+                        }
+                        return InteractionResult.CONSUME;
+                    }
+                    if (stack.getItem() instanceof BucketItem && ((BucketItem) stack.getItem()).content == Fluids.EMPTY) {
+                        FluidTank tank = ((FlopperBlockEntity) blockEntity).getTank();
+                        if (tank.getFluid().getAmount() >= 1000) {
+                            FluidStack fluidStack = tank.getFluid();
+                            Fluid tankFluid = fluidStack.copy().getFluid(); // JIC it's literally 1000mb and it gets emptied
+
+                            fluidStack.shrink(1000);
+
+                            stack.shrink(1);
+
+                            if (stack.isEmpty()) {
+                                player.setItemInHand(player.getUsedItemHand(), new ItemStack(fluidStack.getFluid().getBucket()));
+                            } else {
+                                player.addItem(new ItemStack(fluidStack.getFluid().getBucket()));
+                            }
+                        }
+                        return InteractionResult.CONSUME;
+                    }
+                }
+
+                // Anything else
+                if (handler != null) {
+                    for (int tankIndex = 0; tankIndex < handler.getTanks(); tankIndex++) {
+                        FluidStack fluidStack = handler.getFluidInTank(tankIndex);
+                        if (fluidStack.isEmpty()) {
+                            continue;
+                        }
+                        FluidTank tank = ((FlopperBlockEntity) blockEntity).getTank();
+                        if (tank.getFluid().isEmpty()) {
+                            FluidStack toFill = new FluidStack(fluidStack.getFluid(), Math.min(Config.flopperCapacity, fluidStack.getAmount()));
+                            tank.setFluid(toFill);
+                            System.out.println("shrinking tank contents: " + toFill.getAmount());
+
+                            handler.getFluidInTank(tankIndex).shrink(toFill.getAmount());
+                        } else if (FluidStack.isSameFluidSameComponents(tank.getFluid(), fluidStack)) {
+                            int amount = tank.fill(fluidStack, IFluidHandler.FluidAction.EXECUTE);
+                            System.out.println("shrinking tank contents: " + amount);
+
+                            handler.getFluidInTank(tankIndex).shrink(amount);
+                        }
+                    }
+                    return InteractionResult.CONSUME;
+                }
                 FluidTank tank = ((FlopperBlockEntity) blockEntity).getTank();
                 int ammount = tank.getFluidAmount();
                 String fluidName = tank.getFluid().getHoverName().getString();

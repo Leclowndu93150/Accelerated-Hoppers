@@ -1,5 +1,6 @@
 package com.leclowndu93150.accelerated_hoppers.content.blockentities;
 
+import com.leclowndu93150.accelerated_hoppers.AHMain;
 import com.leclowndu93150.accelerated_hoppers.Config;
 import com.leclowndu93150.accelerated_hoppers.registries.Registry;
 import net.minecraft.core.BlockPos;
@@ -17,6 +18,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HopperBlock;
 import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -36,7 +38,7 @@ import java.util.function.Supplier;
 
 public class FlopperBlockEntity extends BlockEntity {
     private FluidTank tank;
-    private int totalDrainedFromWorld = 0;
+    private int totalDrainedFromWorld;
     private ItemStackHandler inventory = new ItemStackHandler(0) {
         @Override
         protected void onContentsChanged(int slot) {
@@ -50,6 +52,7 @@ public class FlopperBlockEntity extends BlockEntity {
     public FlopperBlockEntity(BlockPos pos, BlockState state) {
         super(Registry.FLOPPER_BLOCK_ENTITY_TYPE.get(), pos, state);
 
+        totalDrainedFromWorld = 0;
         tank = new FluidTank(Config.flopperCapacity) {
             @Override
             protected void onContentsChanged() {
@@ -70,19 +73,20 @@ public class FlopperBlockEntity extends BlockEntity {
     protected void loadAdditional(@NotNull CompoundTag nbt, @NotNull HolderLookup.Provider provider) {
         super.loadAdditional(nbt, provider);
         this.tank.readFromNBT(provider, nbt);
+        this.totalDrainedFromWorld = nbt.getInt("totalDrainedFromWorld");
     }
 
     @Override
     public void saveAdditional(@NotNull CompoundTag compound, @NotNull HolderLookup.Provider provider) {
         super.saveAdditional(compound, provider);
         compound.merge(this.tank.writeToNBT(provider, new CompoundTag()));
-
+        compound.putInt("totalDrainedFromWorld", totalDrainedFromWorld);
     }
 
     public static void tick(Level level, BlockPos pos, BlockState state, FlopperBlockEntity entity) {
         if (level != null && !level.isClientSide) {
             entity.updateHopper(entity::pullFluids);
-            System.out.println("FlopperBlockEntity tick");
+            // System.out.println("FlopperBlockEntity tick");
         }
     }
 
@@ -164,11 +168,13 @@ public class FlopperBlockEntity extends BlockEntity {
     protected void updateHopper(Supplier<Boolean> supplier) {
         if (this.level != null && !this.level.isClientSide) {
             if (this.getBlockState().getValue(HopperBlock.ENABLED)) {
+                // System.out.println("FlopperBlockEntity updatingHopper enabled");
                 boolean flag = false;
 
+                flag = supplier.get(); // Always pull fluids
+
                 if (!this.tank.isEmpty()) {
-                    flag = this.transferFluidOut();
-                    flag |= supplier.get();
+                    flag |= this.transferFluidOut(); // Only push fluids if not empty
                 }
                 if (flag) {
                     this.setChanged();
@@ -196,6 +202,10 @@ public class FlopperBlockEntity extends BlockEntity {
         return getFluidHandler(hopper.getLevel(), x, y, z, hopperFacing.getOpposite());
     }
 
+    /*
+        * Insert a stack into the inventory at the specified index
+        * @return The remainder that could not be inserted
+     */
     private FluidStack insertStack(BlockEntity source, BlockEntity destination, IFluidHandler destInventory, FluidStack stack, int index) {
         FluidStack destStack = destInventory.getFluidInTank(index);
         if (destStack.isEmpty() || FluidStack.isSameFluidSameComponents(stack, destStack)) {
@@ -211,6 +221,10 @@ public class FlopperBlockEntity extends BlockEntity {
         return stack;
     }
 
+    /*
+    * Insert a stack into the inventory
+    * @return The remainder that could not be inserted
+     */
     protected FluidStack putStackInInventoryAllTanks(BlockEntity source, BlockEntity destination, IFluidHandler destInventory, FluidStack stack) {
         for (int tank = 0; tank < destInventory.getTanks() && !stack.isEmpty(); tank++) {
             stack = insertStack(source, destination, destInventory, stack, tank);
@@ -227,21 +241,28 @@ public class FlopperBlockEntity extends BlockEntity {
                     if (isNotFull(fluidHandler)) {
                         if (!this.tank.isEmpty()) {
                             // Copy the tank contents to avoid modifying em
-                            FluidStack originalTankContents = this.tank.getFluid().copy();
+                            FluidStack originalTankContents = this.tank.getFluid();
 
                             // Find out the quanity of fluid to transfer
                             FluidStack insertStack = originalTankContents.copy();
                             insertStack.setAmount(Math.min(this.tank.getFluidAmount(), Config.flopperIORate));
+                            int insertAmount = insertStack.copy().getAmount();
+
+                            // System.out.println("FlopperBlockEntity inserting - " + insertStack.getAmount() + "mb");
 
                             // Insert the fluid into the destination and get the remainder if any
                             FluidStack remainder = putStackInInventoryAllTanks(this, destination, fluidHandler, insertStack);
+                            // System.out.println("FlopperBlockEntity remainder - " + remainder.getAmount() + "mb");
+
+                            // If there is a remainder, shrink the original tank contents by the amount that was successfully transferred
+                            int toBeDrained = insertAmount - remainder.getAmount();
+                            // System.out.println("FlopperBlockEntity toBeDrained - " + toBeDrained + "mb");
+                            int drained = this.tank.drain(toBeDrained, IFluidHandler.FluidAction.EXECUTE).getAmount();
+                            // System.out.println("FlopperBlockEntity drained from flopper - " + drained + "mb");
+
                             if (remainder.isEmpty()) {
                                 return true;
                             }
-
-                            // If there is a remainder, shrink the original tank contents by the amount that was successfully transferred
-                            originalTankContents.shrink(remainder.getAmount());
-                            this.tank.setFluid(originalTankContents);
                         }
                     }
                     return false;
@@ -250,10 +271,17 @@ public class FlopperBlockEntity extends BlockEntity {
     }
 
     protected boolean pullFluids() {
+        // System.out.println("Running pullFluids block");
         return getFluidHandler(this, Direction.UP)
             .map(fluidHandlerResult -> {
+                // System.out.println("FlopperBlockEntity trying to pull fluids from above");
+                    for (int i = 0; i < fluidHandlerResult.getKey().getTanks(); i++) {
+                        FluidStack fluidInTank = fluidHandlerResult.getKey().getFluidInTank(i);
+                        // System.out.println("FlopperBlockEntity pulling from - " + fluidInTank.getFluid() + " - " + fluidInTank.getAmount());
+                    }
                     return pullFluidFromFluidHandler(fluidHandlerResult.getKey());
             }).orElseGet(() -> {
+                // System.out.println("FlopperBlockEntity trying to pull fluids from world");
                 BlockPos pos = BlockPos.containing(this.getLevelX(), this.getLevelY() + 1D, this.getLevelZ());
                 BlockState aboveBlockState = this.level.getBlockState(pos);
                 if (aboveBlockState.is(BlockTags.DOES_NOT_BLOCK_HOPPERS) || !aboveBlockState.isCollisionShapeFullBlock(this.level, pos)) {
@@ -261,10 +289,14 @@ public class FlopperBlockEntity extends BlockEntity {
                         FluidStack fluid = new FluidStack(liquidBlock.fluid, Math.min(Config.flopperIORate, 1000));
                         if (tank.isEmpty() || FluidStack.isSameFluidSameComponents(tank.getFluid(), fluid)) {
                             int filled = tank.fill(fluid, IFluidHandler.FluidAction.EXECUTE);
-                            totalDrainedFromWorld += filled;
-                            if (totalDrainedFromWorld >= 1000) {
-                                totalDrainedFromWorld -= 1000;
-                                level.setBlock(pos, Blocks.AIR.defaultBlockState(), 0);
+                            // System.out.println("FlopperBlockEntity filled - " + filled);
+                            this.totalDrainedFromWorld += filled;
+                            // System.out.println("FlopperBlockEntity totalDrainedFromWorld - " + this.totalDrainedFromWorld);
+                            if (this.totalDrainedFromWorld >= 1000) {
+
+                                //System.out.println("FlopperBlockEntity - drained over 1000mb setting air above");
+                                this.totalDrainedFromWorld -= 1000;
+                                level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
                                 level.playLocalSound(this.getBlockPos(), SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 1.0F, 1.0F, false);
                             }
                             return true;

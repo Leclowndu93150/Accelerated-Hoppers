@@ -34,7 +34,7 @@ public class Config
             .defineInRange("flopperCapacity", 8000, 1, Integer.MAX_VALUE);
 
     private static final ModConfigSpec.IntValue FLOPPER_IO_RATE = BUILDER.comment("The fluid transfer rate (in mb) of a flopper. This value defaults to the flopper capacity if it exceeds it.")
-            .defineInRange("flopperIORate", 1000, 1, Integer.MAX_VALUE);
+            .defineInRange("flopperIORate", 50, 1, Integer.MAX_VALUE);
 
     static final ModConfigSpec SPEC = BUILDER.build();
 
