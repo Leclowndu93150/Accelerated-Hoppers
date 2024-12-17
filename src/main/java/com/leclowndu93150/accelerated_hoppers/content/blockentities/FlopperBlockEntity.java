@@ -91,9 +91,9 @@ public class FlopperBlockEntity extends BlockEntity {
         }
     }
 
-    public static List<Entity> getAllAliveEntitiesAt(Level level, double x, double y, double z, Predicate<? super Entity> filter) {
+    public static List<Entity> getAllAliveEntitiesAt(Level level, double x, double y, double z, Predicate<? super Entity> filtered) {
         return level.getEntities((Entity) null, new AABB(x - 0.5D, y - 0.5D, z - 0.5D, x + 0.5D, y + 0.5D, z + 0.5D),
-                entity -> entity.isAlive() && filter.test(entity));
+                entity -> entity.isAlive() && filtered.test(entity));
     }
 
     protected Optional<Pair<? extends IFluidHandler, Object>> getFluidHandler(Level level, double x, double y, double z, final Direction side) {

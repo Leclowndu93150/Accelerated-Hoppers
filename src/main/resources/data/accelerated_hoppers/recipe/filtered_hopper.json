@@ -8,13 +8,13 @@
   ],
   "key": {
     "W": {
-      "item": "minecraft:emerald"
+      "item": "minecraft:filtered"
     },
     "C": {
       "item": "accelerated_hoppers:golden_hopper"
     }
   },
   "result": {
-    "id": "accelerated_hoppers:emerald_hopper"
+    "id": "accelerated_hoppers:filtered_hopper"
   }
 }

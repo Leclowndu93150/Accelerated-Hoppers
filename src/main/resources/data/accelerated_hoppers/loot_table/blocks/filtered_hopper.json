@@ -12,7 +12,7 @@
               "source": "block_entity"
             }
           ],
-          "name": "accelerated_hoppers:emerald_hopper"
+          "name": "accelerated_hoppers:filtered_hopper"
         }
       ],
       "conditions": [

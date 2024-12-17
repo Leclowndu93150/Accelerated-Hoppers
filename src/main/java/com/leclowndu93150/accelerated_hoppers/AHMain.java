@@ -2,30 +2,16 @@ package com.leclowndu93150.accelerated_hoppers;
 
 import com.leclowndu93150.accelerated_hoppers.client.OtherHopperScreen;
 import com.leclowndu93150.accelerated_hoppers.client.WoodenHopperScreen;
-import com.leclowndu93150.accelerated_hoppers.content.blockentities.IronHopperBlockEntity;
 import com.leclowndu93150.accelerated_hoppers.content.inventory.*;
 import com.leclowndu93150.accelerated_hoppers.registries.Registry;
-import com.leclowndu93150.accelerated_hoppers.utils.TooltipUtil;
-import net.minecraft.client.gui.screens.MenuScreens;
-import net.minecraft.world.item.*;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
-import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.material.MapColor;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -33,15 +19,6 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
-import net.neoforged.neoforge.event.server.ServerStartingEvent;
-import net.neoforged.neoforge.registries.DeferredBlock;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredItem;
-import net.neoforged.neoforge.registries.DeferredRegister;
 
 
 @Mod(AHMain.MODID)
@@ -72,7 +49,7 @@ public class AHMain {
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, Registry.IRON_HOPPER_BLOCK_ENTITY_TYPE.get(), (blockEntity, side) -> new IronHopperItemHandler(blockEntity));
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, Registry.GOLDEN_HOPPER_BLOCK_ENTITY_TYPE.get(), (blockEntity, side) -> new GoldenHopperItemHandler(blockEntity));
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, Registry.DIAMOND_HOPPER_BLOCK_ENTITY_TYPE.get(), (blockEntity, side) -> new DiamondHopperItemHandler(blockEntity));
-        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, Registry.EMERALD_HOPPER_BLOCK_ENTITY_TYPE.get(), (blockEntity, side) -> new EmeraldHopperItemHandler(blockEntity));
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, Registry.FILTERED_HOPPER_BLOCK_ENTITY_TYPE.get(), (blockEntity, side) -> new FilteredHopperItemHandler(blockEntity));
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, Registry.NETHERITE_HOPPER_BLOCK_ENTITY_TYPE.get(), (blockEntity, side) -> new NetheriteHopperItemHandler(blockEntity));
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, Registry.FLOPPER_BLOCK_ENTITY_TYPE.get(), (blockEntity, side) -> new FlopperFluidHandler(blockEntity));
     }

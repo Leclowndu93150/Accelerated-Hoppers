@@ -4,7 +4,7 @@
     "accelerated_hoppers:iron_hopper",
     "accelerated_hoppers:golden_hopper",
     "accelerated_hoppers:diamond_hopper",
-    "accelerated_hoppers:emerald_hopper",
+    "accelerated_hoppers:filtered_hopper",
     "accelerated_hoppers:netherite_hopper"
   ]
 }

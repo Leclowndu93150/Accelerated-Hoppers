@@ -1,7 +1,7 @@
 package com.leclowndu93150.accelerated_hoppers.content.blocks;
 
 import com.leclowndu93150.accelerated_hoppers.Config;
-import com.leclowndu93150.accelerated_hoppers.content.blockentities.EmeraldHopperBlockEntity;
+import com.leclowndu93150.accelerated_hoppers.content.blockentities.FilteredHopperBlockEntity;
 import com.leclowndu93150.accelerated_hoppers.registries.Registry;
 import com.leclowndu93150.accelerated_hoppers.utils.TooltipUtil;
 import net.minecraft.core.BlockPos;
@@ -27,20 +27,20 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class EmeraldHopperBlock extends HopperBlock {
-    public EmeraldHopperBlock(Properties properties) {
+public class FilteredHopperBlock extends HopperBlock {
+    public FilteredHopperBlock(Properties properties) {
         super(properties);
     }
 
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return Registry.EMERALD_HOPPER_BLOCK_ENTITY_TYPE.get().create(pos, state);
+        return Registry.FILTERED_HOPPER_BLOCK_ENTITY_TYPE.get().create(pos, state);
     }
 
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
-        return createTickerHelper(blockEntityType, Registry.EMERALD_HOPPER_BLOCK_ENTITY_TYPE.get(), EmeraldHopperBlockEntity::tick);
+        return createTickerHelper(blockEntityType, Registry.FILTERED_HOPPER_BLOCK_ENTITY_TYPE.get(), FilteredHopperBlockEntity::tick);
     }
 
     @Override
@@ -50,8 +50,8 @@ public class EmeraldHopperBlock extends HopperBlock {
             return InteractionResult.SUCCESS;
         } else {
             BlockEntity blockEntity = worldIn.getBlockEntity(pos);
-            if (blockEntity instanceof EmeraldHopperBlockEntity) {
-                player.openMenu((EmeraldHopperBlockEntity)blockEntity);
+            if (blockEntity instanceof FilteredHopperBlockEntity) {
+                player.openMenu((FilteredHopperBlockEntity)blockEntity);
                 player.awardStat(Stats.INSPECT_HOPPER);
             }
             return InteractionResult.CONSUME;
@@ -62,8 +62,8 @@ public class EmeraldHopperBlock extends HopperBlock {
     public void onRemove(BlockState state, @NotNull Level worldIn, @NotNull BlockPos pos, BlockState newState, boolean isMoving) {
         if (!state.is(newState.getBlock())) {
             BlockEntity blockEntity = worldIn.getBlockEntity(pos);
-            if (blockEntity instanceof EmeraldHopperBlockEntity) {
-                Containers.dropContents(worldIn, pos, (EmeraldHopperBlockEntity)blockEntity);
+            if (blockEntity instanceof FilteredHopperBlockEntity) {
+                Containers.dropContents(worldIn, pos, (FilteredHopperBlockEntity)blockEntity);
                 worldIn.updateNeighbourForOutputSignal(pos, this);
             }
             super.onRemove(state, worldIn, pos, newState, isMoving);
@@ -74,17 +74,17 @@ public class EmeraldHopperBlock extends HopperBlock {
     public void entityInside(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Entity entity) {
         if (entity instanceof ItemEntity itemEntity) {
             BlockEntity blockEntity = level.getBlockEntity(pos);
-            if (blockEntity instanceof EmeraldHopperBlockEntity emeraldHopperBlockEntity
-                    && !itemEntity.getItem().isEmpty() && itemEntity.getBoundingBox().move((-pos.getX()), (-pos.getY()), (-pos.getZ())).intersects(emeraldHopperBlockEntity.getSuckAabb())
+            if (blockEntity instanceof FilteredHopperBlockEntity filteredHopperBlockEntity
+                    && !itemEntity.getItem().isEmpty() && itemEntity.getBoundingBox().move((-pos.getX()), (-pos.getY()), (-pos.getZ())).intersects(filteredHopperBlockEntity.getSuckAabb())
             ) {
-                emeraldHopperBlockEntity.onItemEntityIsCaptured(itemEntity);
+                filteredHopperBlockEntity.onItemEntityIsCaptured(itemEntity);
             }
         }
     }
 
     @Override
     public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-        TooltipUtil.addTooltip(tooltipComponents, Config.emeraldHopperTransferCooldown);
+        TooltipUtil.addTooltip(tooltipComponents, Config.filteredHopperTransferCooldown);
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
     }
 }
