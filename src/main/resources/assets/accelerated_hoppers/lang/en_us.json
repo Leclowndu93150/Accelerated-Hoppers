@@ -5,10 +5,12 @@
   "item.accelerated_hoppers.diamond_hopper": "Diamond Hopper",
   "item.accelerated_hoppers.emerald_hopper": "Emerald Hopper",
   "item.accelerated_hoppers.netherite_hopper": "Netherite Hopper",
+  "item.accelrated_hoppers.flopper": "Flopper",
   "block.accelerated_hoppers.wooden_hopper": "Wooden Hopper",
   "block.accelerated_hoppers.iron_hopper": "Iron Hopper",
   "block.accelerated_hoppers.golden_hopper": "Golden Hopper",
   "block.accelerated_hoppers.diamond_hopper": "Diamond Hopper",
   "block.accelerated_hoppers.emerald_hopper": "Emerald Hopper",
-  "block.accelerated_hoppers.netherite_hopper": "Netherite Hopper"
+  "block.accelerated_hoppers.netherite_hopper": "Netherite Hopper",
+    "block.accelerated_hoppers.flopper": "Flopper"
 }
