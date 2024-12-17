@@ -9,6 +9,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
@@ -29,20 +30,19 @@ public class Registry {
 
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MODID);
 
-    public static final DeferredBlock<WoodenHopperBlock> WOODEN_HOPPER = BLOCKS.register("wooden_hopper", () -> new WoodenHopperBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.HOPPER)));
-    public static final DeferredBlock<IronHopperBlock> IRON_HOPPER = BLOCKS.register("iron_hopper", () -> new IronHopperBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.HOPPER)));
-    public static final DeferredBlock<GoldenHopperBlock> GOLDEN_HOPPER = BLOCKS.register("golden_hopper", () -> new GoldenHopperBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.HOPPER)));
-    public static final DeferredBlock<DiamondHopperBlock> DIAMOND_HOPPER = BLOCKS.register("diamond_hopper", () -> new DiamondHopperBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.HOPPER)));
-    public static final DeferredBlock<EmeraldHopperBlock> EMERALD_HOPPER = BLOCKS.register("emerald_hopper", () -> new EmeraldHopperBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.HOPPER)));
-    public static final DeferredBlock<NetheriteHopperBlock> NETHERITE_HOPPER = BLOCKS.register("netherite_hopper", () -> new NetheriteHopperBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.HOPPER)));
+    public static final DeferredBlock<WoodenHopperBlock> WOODEN_HOPPER = BLOCKS.register("wooden_hopper", () -> new WoodenHopperBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.HOPPER).sound(SoundType.WOOD)));
+    public static final DeferredBlock<IronHopperBlock> IRON_HOPPER = BLOCKS.register("iron_hopper", () -> new IronHopperBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.HOPPER).sound(SoundType.METAL)));
+    public static final DeferredBlock<GoldenHopperBlock> GOLDEN_HOPPER = BLOCKS.register("golden_hopper", () -> new GoldenHopperBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.HOPPER).sound(SoundType.METAL)));
+    public static final DeferredBlock<DiamondHopperBlock> DIAMOND_HOPPER = BLOCKS.register("diamond_hopper", () -> new DiamondHopperBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.HOPPER).sound(SoundType.METAL)));
+    public static final DeferredBlock<EmeraldHopperBlock> EMERALD_HOPPER = BLOCKS.register("emerald_hopper", () -> new EmeraldHopperBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.HOPPER).sound(SoundType.METAL)));
+    public static final DeferredBlock<NetheriteHopperBlock> NETHERITE_HOPPER = BLOCKS.register("netherite_hopper", () -> new NetheriteHopperBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.HOPPER).sound(SoundType.NETHERITE_BLOCK)));
 
     public static final DeferredItem<BlockItem> WOODEN_HOPPER_ITEM = ITEMS.register("wooden_hopper", () -> new BlockItem(WOODEN_HOPPER.get(), new Item.Properties()));
     public static final DeferredItem<BlockItem> IRON_HOPPER_ITEM = ITEMS.register("iron_hopper", () -> new BlockItem(IRON_HOPPER.get(), new Item.Properties()));
     public static final DeferredItem<BlockItem> GOLDEN_HOPPER_ITEM = ITEMS.register("golden_hopper", () -> new BlockItem(GOLDEN_HOPPER.get(), new Item.Properties()));
     public static final DeferredItem<BlockItem> DIAMOND_HOPPER_ITEM = ITEMS.register("diamond_hopper", () -> new BlockItem(DIAMOND_HOPPER.get(), new Item.Properties()));
     public static final DeferredItem<BlockItem> EMERALD_HOPPER_ITEM = ITEMS.register("emerald_hopper", () -> new BlockItem(EMERALD_HOPPER.get(), new Item.Properties()));
-    public static final DeferredItem<BlockItem> NETHERITE_HOPPER_ITEM = ITEMS.register("netherite_hopper", () -> new BlockItem(NETHERITE_HOPPER.get(), new Item.Properties()));
-
+    public static final DeferredItem<BlockItem> NETHERITE_HOPPER_ITEM = ITEMS.register("netherite_hopper", () -> new BlockItem(NETHERITE_HOPPER.get(), new Item.Properties().fireResistant()));
 
     //Block entity types
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_TYPES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, MODID);
