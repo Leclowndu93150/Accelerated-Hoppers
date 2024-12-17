@@ -30,6 +30,12 @@ public class Config
     private static final ModConfigSpec.IntValue NETHERITE_HOPPER_TRANSFER_COOLDOWN = BUILDER.comment("The number of ticks between each transfer operation for netherite hoppers.")
             .defineInRange("netheriteHopperTransferCooldown", 1, 1, Integer.MAX_VALUE);
 
+    private static final ModConfigSpec.IntValue FLOPPER_CAPACITY = BUILDER.comment("The fluid capacity (in mb) that can be stored in a flopper.")
+            .defineInRange("flopperCapacity", 8000, 1, Integer.MAX_VALUE);
+
+    private static final ModConfigSpec.IntValue FLOPPER_IO_RATE = BUILDER.comment("The fluid transfer rate (in mb) of a flopper. This value defaults to the flopper capacity if it exceeds it.")
+            .defineInRange("flopperIORate", 1000, 1, Integer.MAX_VALUE);
+
     static final ModConfigSpec SPEC = BUILDER.build();
 
     public static int woodenHopperTransferCooldown;
@@ -38,6 +44,8 @@ public class Config
     public static int diamondHopperTransferCooldown;
     public static int emeraldHopperTransferCooldown;
     public static int netheriteHopperTransferCooldown;
+    public static int flopperCapacity;
+    public static int flopperIORate;
 
 
     @SubscribeEvent
@@ -50,5 +58,11 @@ public class Config
         emeraldHopperTransferCooldown = EMERALD_HOPPER_TRANSFER_COOLDOWN.get();
         netheriteHopperTransferCooldown = NETHERITE_HOPPER_TRANSFER_COOLDOWN.get();
 
+        flopperCapacity = FLOPPER_CAPACITY.get();
+        if (flopperIORate > flopperCapacity) {
+            flopperIORate = flopperCapacity;
+        } else {
+            flopperIORate = FLOPPER_IO_RATE.get();
+        }
     }
 }
