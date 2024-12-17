@@ -5,11 +5,14 @@ import com.leclowndu93150.accelerated_hoppers.client.WoodenHopperScreen;
 import com.leclowndu93150.accelerated_hoppers.content.blockentities.IronHopperBlockEntity;
 import com.leclowndu93150.accelerated_hoppers.content.inventory.*;
 import com.leclowndu93150.accelerated_hoppers.registries.Registry;
+import com.leclowndu93150.accelerated_hoppers.utils.TooltipUtil;
 import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.world.item.*;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -19,10 +22,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -76,6 +75,4 @@ public class AHMain {
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, Registry.EMERALD_HOPPER_BLOCK_ENTITY_TYPE.get(), (blockEntity, side) -> new EmeraldHopperItemHandler(blockEntity));
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, Registry.NETHERITE_HOPPER_BLOCK_ENTITY_TYPE.get(), (blockEntity, side) -> new NetheriteHopperItemHandler(blockEntity));
     }
-
-
 }
