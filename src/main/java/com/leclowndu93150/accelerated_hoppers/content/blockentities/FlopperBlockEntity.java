@@ -21,6 +21,7 @@ import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -286,20 +287,24 @@ public class FlopperBlockEntity extends BlockEntity {
                 BlockState aboveBlockState = this.level.getBlockState(pos);
                 if (aboveBlockState.is(BlockTags.DOES_NOT_BLOCK_HOPPERS) || !aboveBlockState.isCollisionShapeFullBlock(this.level, pos)) {
                     if (level.getBlockState(pos).getBlock() instanceof LiquidBlock liquidBlock) {
-                        FluidStack fluid = new FluidStack(liquidBlock.fluid, Math.min(Config.flopperIORate, 1000));
-                        if (tank.isEmpty() || FluidStack.isSameFluidSameComponents(tank.getFluid(), fluid)) {
-                            int filled = tank.fill(fluid, IFluidHandler.FluidAction.EXECUTE);
-                            // System.out.println("FlopperBlockEntity filled - " + filled);
-                            this.totalDrainedFromWorld += filled;
-                            // System.out.println("FlopperBlockEntity totalDrainedFromWorld - " + this.totalDrainedFromWorld);
-                            if (this.totalDrainedFromWorld >= 1000) {
-
-                                //System.out.println("FlopperBlockEntity - drained over 1000mb setting air above");
-                                this.totalDrainedFromWorld -= 1000;
-                                level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
-                                level.playLocalSound(this.getBlockPos(), SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 1.0F, 1.0F, false);
+                        FluidState fluidState = level.getBlockState(pos).getFluidState();
+                        //Checks if the block is a source block and if the amount is 8 (1 bucket)
+                        if (fluidState.isSource() && fluidState.getAmount() == 8) {
+                            System.out.println(liquidBlock.fluid.isSource(level.getBlockState(pos).getFluidState()));
+                            FluidStack fluid = new FluidStack(liquidBlock.fluid, Math.min(Config.flopperIORate, 1000));
+                            if (tank.isEmpty() || FluidStack.isSameFluidSameComponents(tank.getFluid(), fluid)) {
+                                int filled = tank.fill(fluid, IFluidHandler.FluidAction.EXECUTE);
+                                // System.out.println("FlopperBlockEntity filled - " + filled);
+                                this.totalDrainedFromWorld += filled;
+                                // System.out.println("FlopperBlockEntity totalDrainedFromWorld - " + this.totalDrainedFromWorld);
+                                if (this.totalDrainedFromWorld >= 1000) {
+                                    //System.out.println("FlopperBlockEntity - drained over 1000mb setting air above");
+                                    this.totalDrainedFromWorld -= 1000;
+                                    level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
+                                    level.playLocalSound(this.getBlockPos(), SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 1.0F, 1.0F, false);
+                                }
+                                return true;
                             }
-                            return true;
                         }
                     }
                 }
