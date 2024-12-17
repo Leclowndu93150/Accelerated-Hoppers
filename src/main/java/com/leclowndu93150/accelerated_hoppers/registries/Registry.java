@@ -2,6 +2,7 @@ package com.leclowndu93150.accelerated_hoppers.registries;
 
 import com.leclowndu93150.accelerated_hoppers.content.blockentities.*;
 import com.leclowndu93150.accelerated_hoppers.content.blocks.*;
+import com.leclowndu93150.accelerated_hoppers.content.inventory.FilterHopperContainer;
 import com.leclowndu93150.accelerated_hoppers.content.inventory.OtherHopperContainer;
 import com.leclowndu93150.accelerated_hoppers.content.inventory.WoodenHopperContainer;
 import net.minecraft.core.registries.Registries;
@@ -62,6 +63,7 @@ public class Registry {
     public static final DeferredRegister<MenuType<?>> MENU_TYPES = DeferredRegister.create(Registries.MENU, MODID);
     public static final Supplier<MenuType<WoodenHopperContainer>> WOODEN_HOPPER_CONTAINER = MENU_TYPES.register("wooden_hopper", () -> IMenuTypeExtension.create((pWindowID, pInventory, pData) -> new WoodenHopperContainer(pWindowID, pInventory)));
     public static final Supplier<MenuType<OtherHopperContainer>> OTHER_HOPPER_CONTAINER = MENU_TYPES.register("other_hopper", () -> IMenuTypeExtension.create((pWindowID, pInventory, pData) -> new OtherHopperContainer(pWindowID, pInventory)));
+    public static final Supplier<MenuType<FilterHopperContainer>> FILTER_HOPPER_CONTAINER = MENU_TYPES.register("filter_hopper", () -> IMenuTypeExtension.create((pWindowID, pInventory, pData) -> new FilterHopperContainer(pWindowID, pInventory)));
 
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> AH_TAB = CREATIVE_MODE_TABS.register("accelerated_hoppers", () -> CreativeModeTab.builder()
