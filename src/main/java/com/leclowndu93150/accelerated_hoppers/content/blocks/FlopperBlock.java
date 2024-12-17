@@ -8,6 +8,9 @@ import com.leclowndu93150.accelerated_hoppers.utils.TooltipUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionResult;
@@ -49,6 +52,14 @@ public class FlopperBlock extends HopperBlock {
         return createTickerHelper(blockEntityType, Registry.FLOPPER_BLOCK_ENTITY_TYPE.get(), FlopperBlockEntity::tick);
     }
 
+    private void bucketFillSound(Level worldIn, BlockPos pos) {
+        worldIn.playLocalSound(pos, SoundEvents.BUCKET_FILL, SoundSource.BLOCKS, 1.0F, 1.0F, false);
+    }
+
+    private void bucketEmptySound(Level worldIn, BlockPos pos) {
+        worldIn.playLocalSound(pos, SoundEvents.BUCKET_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F, false);
+    }
+
     @Override
     @NotNull
     public InteractionResult useWithoutItem(@NotNull BlockState state, Level worldIn, @NotNull BlockPos pos, @NotNull Player player, @NotNull BlockHitResult hit) {
@@ -70,6 +81,7 @@ public class FlopperBlock extends HopperBlock {
                             tank.setFluid(fluidStack);
                             stack.shrink(1);
                             System.out.println("set fluid in tank - stack amount: " + stack.getCount());
+                            bucketEmptySound(worldIn, pos);
                             if (stack.isEmpty()) {
                                 System.out.println("empty stack");
                                 player.setItemInHand(player.getUsedItemHand(), new ItemStack(Items.BUCKET));
@@ -80,6 +92,7 @@ public class FlopperBlock extends HopperBlock {
                             tank.fill(new FluidStack(((BucketItem) stack.getItem()).content, 1000), IFluidHandler.FluidAction.EXECUTE);
                             stack.shrink(1);
                             System.out.println("fillin tank - stack amount: " + stack.getCount());
+                            bucketEmptySound(worldIn, pos);
                             if (stack.isEmpty()) {
                                 System.out.println("empty stack");
                                 player.setItemInHand(player.getUsedItemHand(), new ItemStack(Items.BUCKET));
@@ -93,14 +106,15 @@ public class FlopperBlock extends HopperBlock {
                         FluidTank tank = ((FlopperBlockEntity) blockEntity).getTank();
                         if (tank.getFluid().getAmount() >= 1000) {
                             FluidStack fluidStack = tank.getFluid();
-                            Fluid tankFluid = fluidStack.copy().getFluid(); // JIC it's literally 1000mb and it gets emptied
+                            Fluid tankFluid = fluidStack.copy().getFluid(); // JIC it's literally 1000mb and it gets emptied and there won't be a getBucket()
 
                             fluidStack.shrink(1000);
 
                             stack.shrink(1);
 
                             if (stack.isEmpty()) {
-                                player.setItemInHand(player.getUsedItemHand(), new ItemStack(fluidStack.getFluid().getBucket()));
+                                player.setItemInHand(player.getUsedItemHand(), new ItemStack(tankFluid.getBucket()));
+                                worldIn.playLocalSound(blockEntity.getBlockPos(), SoundEvents.BUCKET_FILL, SoundSource.BLOCKS, 1.0F, 1.0F, false);
                             } else {
                                 player.addItem(new ItemStack(fluidStack.getFluid().getBucket()));
                             }
