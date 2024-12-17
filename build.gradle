@@ -117,6 +117,8 @@ configurations {
 
 dependencies {
     runtimeOnly "curse.maven:jei-238222:5846880"
+    runtimeOnly "curse.maven:functional-storage-556861:5861256"
+    runtimeOnly "curse.maven:titanium-287342:5897690"
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.
