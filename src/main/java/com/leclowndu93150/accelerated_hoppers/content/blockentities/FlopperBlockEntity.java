@@ -82,6 +82,7 @@ public class FlopperBlockEntity extends BlockEntity {
     public static void tick(Level level, BlockPos pos, BlockState state, FlopperBlockEntity entity) {
         if (level != null && !level.isClientSide) {
             entity.updateHopper(entity::pullFluids);
+            System.out.println("FlopperBlockEntity tick");
         }
     }
 
