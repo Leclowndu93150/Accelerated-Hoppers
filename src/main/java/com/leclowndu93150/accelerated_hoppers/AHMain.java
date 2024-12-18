@@ -5,6 +5,7 @@ import com.leclowndu93150.accelerated_hoppers.client.OtherHopperScreen;
 import com.leclowndu93150.accelerated_hoppers.client.WoodenHopperScreen;
 import com.leclowndu93150.accelerated_hoppers.content.inventory.*;
 import com.leclowndu93150.accelerated_hoppers.registries.Registry;
+import net.minecraft.world.entity.ExperienceOrb;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;

@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "redstone",
   "pattern": [
-    "W W",
+    "WAW",
     "WCW",
     " W "
   ],
@@ -12,6 +12,9 @@
     },
     "C": {
       "item": "accelerated_hoppers:golden_hopper"
+    },
+    "A": {
+      "item": "minecraft:comparator"
     }
   },
   "result": {
