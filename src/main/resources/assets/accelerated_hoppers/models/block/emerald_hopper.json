@@ -3,7 +3,7 @@
 	"ambientocclusion": false,
 	"texture_size": [32, 32],
 	"textures": {
-		"1": "accelerated_hoppers:block/netherite_hopper"
+		"1": "accelerated_hoppers:block/emerald_hopper"
 	},
 	"elements": [
 		{
@@ -45,7 +45,7 @@
 			"to": [14, 16, 2],
 			"faces": {
 				"north": {"uv": [1, 0, 7, 2.5], "texture": "#1", "cullface": "north"},
-				"south": {"uv": [0.5, 0, 6.5, 2.5], "texture": "#1", "cullface": "up"},
+				"south": {"uv": [1, 0, 7, 2.5], "texture": "#1", "cullface": "up"},
 				"up": {"uv": [9, 0, 15, 1], "texture": "#1", "cullface": "up"}
 			}
 		},
@@ -70,14 +70,14 @@
 			}
 		},
 		{
-			"from": [6, 4, 0],
-			"to": [10, 8, 4],
+			"from": [6, 0, 6],
+			"to": [10, 4, 10],
 			"faces": {
-				"north": {"uv": [3, 11, 5, 13], "texture": "#1", "cullface": "north"},
-				"east": {"uv": [3, 6, 5, 8], "rotation": 270, "texture": "#1"},
-				"west": {"uv": [3, 6, 5, 8], "rotation": 90, "texture": "#1"},
-				"up": {"uv": [3, 6, 5, 8], "rotation": 180, "texture": "#1"},
-				"down": {"uv": [3, 6, 5, 8], "texture": "#1"}
+				"north": {"uv": [3, 6, 5, 8], "texture": "#1"},
+				"east": {"uv": [3, 6, 5, 8], "texture": "#1"},
+				"south": {"uv": [3, 6, 5, 8], "texture": "#1"},
+				"west": {"uv": [3, 6, 5, 8], "texture": "#1"},
+				"down": {"uv": [3, 11, 5, 13], "texture": "#1", "cullface": "down"}
 			}
 		}
 	]
