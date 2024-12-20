@@ -1,10 +1,10 @@
 {
   "replace": false,
   "values": [
-    "accelerated_hoppers:iron_hopper",
-    "accelerated_hoppers:golden_hopper",
-    "accelerated_hoppers:diamond_hopper",
-    "accelerated_hoppers:filtered_hopper",
-    "accelerated_hoppers:netherite_hopper"
+    "advanced_hoppers:iron_hopper",
+    "advanced_hoppers:golden_hopper",
+    "advanced_hoppers:diamond_hopper",
+    "advanced_hoppers:filtered_hopper",
+    "advanced_hoppers:netherite_hopper"
   ]
 }
