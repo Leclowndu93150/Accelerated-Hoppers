@@ -84,7 +84,6 @@ public class FlopperBlockEntity extends BlockEntity {
     public static void tick(Level level, BlockPos pos, BlockState state, FlopperBlockEntity entity) {
         if (level != null && !level.isClientSide) {
             entity.updateHopper(entity::pullFluids);
-            // System.out.println("FlopperBlockEntity tick");
         }
     }
 
@@ -287,7 +286,6 @@ public class FlopperBlockEntity extends BlockEntity {
                         FluidState fluidState = level.getBlockState(pos).getFluidState();
                         //Checks if the block is a source block and if the amount is 8 (1 bucket)
                         if (fluidState.isSource() && fluidState.getAmount() == 8) {
-                            System.out.println(liquidBlock.fluid.isSource(level.getBlockState(pos).getFluidState()));
                             FluidStack fluid = new FluidStack(liquidBlock.fluid, Math.min(Config.flopperIORate, 1000));
                             if (tank.isEmpty() || FluidStack.isSameFluidSameComponents(tank.getFluid(), fluid)) {
                                 int filled = tank.fill(fluid, IFluidHandler.FluidAction.EXECUTE);
