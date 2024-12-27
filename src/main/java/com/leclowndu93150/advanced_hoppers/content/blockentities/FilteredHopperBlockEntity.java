@@ -129,8 +129,11 @@ public class FilteredHopperBlockEntity extends RandomizableContainerBlockEntity 
     }
 
     @Override
-    @NotNull
-    public ItemStack removeItem(int index, int count) {
+    public @NotNull ItemStack removeItem(int index, int count) {
+        // Prevent filter slots (0-4) from being extracted by other inventories
+        if (index < 5) {
+            return ItemStack.EMPTY;
+        }
         this.unpackLootTable(null);
         ItemStack stack = this.inventory.extractItem(index, count, false);
         this.setChanged();
@@ -138,8 +141,11 @@ public class FilteredHopperBlockEntity extends RandomizableContainerBlockEntity 
     }
 
     @Override
-    @NotNull
-    public ItemStack removeItemNoUpdate(int index) {
+    public @NotNull ItemStack removeItemNoUpdate(int index) {
+        // Prevent filter slots (0-4) from being extracted by other inventories
+        if (index < 5) {
+            return ItemStack.EMPTY;
+        }
         this.unpackLootTable(null);
         ItemStack stack = this.inventory.getStackInSlot(index);
         this.inventory.setStackInSlot(index, ItemStack.EMPTY);
@@ -247,27 +253,67 @@ public class FilteredHopperBlockEntity extends RandomizableContainerBlockEntity 
         return Optional.empty();
     }
 
+    protected boolean alternateDestination = false;
+
     protected boolean pullItemsFromItemHandler(Object itemHandler) {
         IItemHandler sourceHandler = (IItemHandler) itemHandler;
+        Optional<Pair<Object, Object>> facingHandler = getItemHandler(this, this.getBlockState().getValue(HopperBlock.FACING));
+        Optional<Pair<Object, Object>> bottomHandler = getItemHandler(this, Direction.DOWN);
 
-        return getItemHandler(this, this.getBlockState().getValue(HopperBlock.FACING))
-                .map(destination -> {
-                    IItemHandler destHandler = (IItemHandler) destination.getKey();
+        for (int sourceSlot = 0; sourceSlot < sourceHandler.getSlots(); sourceSlot++) {
+            ItemStack stack = sourceHandler.extractItem(sourceSlot, 1, true);
 
-                    for (int sourceSlot = 0; sourceSlot < sourceHandler.getSlots(); sourceSlot++) {
-                        ItemStack stack = sourceHandler.extractItem(sourceSlot, 1, true);
+            if (!stack.isEmpty() && isItemAllowedByFilter(stack)) {
+                if (facingHandler.isPresent() && bottomHandler.isPresent()) {
+                    IItemHandler primaryDest = alternateDestination ?
+                            (IItemHandler) facingHandler.get().getKey() :
+                            (IItemHandler) bottomHandler.get().getKey();
 
-                        if (!stack.isEmpty() && isItemAllowedByFilter(stack)) {
-                            ItemStack remaining = insertItemDirectlyIntoDestination(destHandler, stack);
+                    IItemHandler secondaryDest = alternateDestination ?
+                            (IItemHandler) bottomHandler.get().getKey() :
+                            (IItemHandler) facingHandler.get().getKey();
 
-                            if (remaining.isEmpty()) {
-                                sourceHandler.extractItem(sourceSlot, 1, false); // Finalize extraction
-                                return true;
-                            }
-                        }
+                    if (insertItemDirectlyIntoDestination(primaryDest, stack.copy()).isEmpty()) {
+                        sourceHandler.extractItem(sourceSlot, 1, false);
+                        alternateDestination = !alternateDestination;
+                        return true;
                     }
-                    return false;
-                }).orElse(false);
+
+                    if (insertItemDirectlyIntoDestination(secondaryDest, stack.copy()).isEmpty()) {
+                        sourceHandler.extractItem(sourceSlot, 1, false);
+                        alternateDestination = !alternateDestination;
+                        return true;
+                    }
+                }
+                else if (facingHandler.isPresent()) {
+                    IItemHandler destHandler = (IItemHandler) facingHandler.get().getKey();
+                    if (insertItemDirectlyIntoDestination(destHandler, stack.copy()).isEmpty()) {
+                        sourceHandler.extractItem(sourceSlot, 1, false);
+                        return true;
+                    }
+                }
+                else if (bottomHandler.isPresent()) {
+                    IItemHandler bottomDest = (IItemHandler) bottomHandler.get().getKey();
+                    if (insertItemDirectlyIntoDestination(bottomDest, stack.copy()).isEmpty()) {
+                        sourceHandler.extractItem(sourceSlot, 1, false);
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private ItemStack insertItemDirectlyIntoDestination(IItemHandler destInventory, ItemStack stack) {
+        for (int slot = 0; slot < destInventory.getSlots(); slot++) {
+            if (destInventory.isItemValid(slot, stack)) {
+                ItemStack remaining = destInventory.insertItem(slot, stack, false);
+                if (remaining.isEmpty()) {
+                    return ItemStack.EMPTY;
+                }
+            }
+        }
+        return stack;
     }
 
 
@@ -310,20 +356,6 @@ public class FilteredHopperBlockEntity extends RandomizableContainerBlockEntity 
         return getItemHandler(hopper.getLevel(), x, y, z, hopperFacing.getOpposite());
     }
 
-
-    private ItemStack insertItemDirectlyIntoDestination(Object destInventoryObj, ItemStack stack) {
-        IItemHandler destInventory = (IItemHandler) destInventoryObj;
-
-        for (int slot = 0; slot < destInventory.getSlots(); slot++) {
-            ItemStack remainingStack = destInventory.insertItem(slot, stack, false);
-
-            if (remainingStack.getCount() < stack.getCount()) {
-                return remainingStack;
-            }
-        }
-
-        return stack;
-    }
 
     private boolean captureItem(ItemEntity itemEntity) {
         boolean flag = false;
