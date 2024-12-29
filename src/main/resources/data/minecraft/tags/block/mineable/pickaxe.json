@@ -5,6 +5,7 @@
     "advanced_hoppers:golden_hopper",
     "advanced_hoppers:diamond_hopper",
     "advanced_hoppers:filtered_hopper",
-    "advanced_hoppers:netherite_hopper"
+    "advanced_hoppers:netherite_hopper",
+    "advanced_hoppers:flopper"
   ]
 }
