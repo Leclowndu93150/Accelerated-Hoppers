@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    "W W",
+    "WCW",
+    " W "
+  ],
+  "key": {
+    "W": {
+      "item": "minecraft:copper_ingot"
+    },
+    "C": {
+      "item": "minecraft:bucket"
+    }
+  },
+  "result": {
+    "id": "advanced_hoppers:flopper"
+  }
+}
