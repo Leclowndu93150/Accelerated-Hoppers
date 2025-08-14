@@ -50,7 +50,6 @@ public class Registry {
 
     //Block entity types
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_TYPES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, MODID);
-    //gonna have wooden, iron, gold, diamond, and netherite hoppers
     public static final Supplier<BlockEntityType<WoodenHopperBlockEntity>> WOODEN_HOPPER_BLOCK_ENTITY_TYPE = BLOCK_ENTITY_TYPES.register("wooden_hopper", () -> BlockEntityType.Builder.of(WoodenHopperBlockEntity::new, WOODEN_HOPPER.get()).build(null));
     public static final Supplier<BlockEntityType<IronHopperBlockEntity>> IRON_HOPPER_BLOCK_ENTITY_TYPE = BLOCK_ENTITY_TYPES.register("iron_hopper", () -> BlockEntityType.Builder.of(IronHopperBlockEntity::new, IRON_HOPPER.get()).build(null));
     public static final Supplier<BlockEntityType<GoldenHopperBlockEntity>> GOLDEN_HOPPER_BLOCK_ENTITY_TYPE = BLOCK_ENTITY_TYPES.register("golden_hopper", () -> BlockEntityType.Builder.of(GoldenHopperBlockEntity::new, GOLDEN_HOPPER.get()).build(null));

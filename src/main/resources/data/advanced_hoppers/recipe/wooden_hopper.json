@@ -8,10 +8,10 @@
   ],
   "key": {
     "W": {
-      "item": "#minecraft:planks"
+      "tag": "minecraft:planks"
     },
     "C": {
-      "item": "#c:chests/wooden"
+      "tag": "c:chests/wooden"
     }
   },
   "result": {

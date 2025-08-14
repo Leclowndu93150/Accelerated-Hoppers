@@ -40,12 +40,25 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 public class FilteredHopperBlockEntity extends RandomizableContainerBlockEntity implements Hopper {
     protected int transferCooldown = Config.filteredHopperTransferCooldown;
     protected long tickedGameTime;
-    private ItemStackHandler inventory = new ItemStackHandler(5);
+    // Only 5 slots for filter items (ghost slots - max stack size of 1)
+    private ItemStackHandler filterSlots = new ItemStackHandler(5) {
+        @Override
+        public int getSlotLimit(int slot) {
+            return 1; // Ghost slots only hold 1 item as template
+        }
+        
+        @Override
+        public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+            return true;
+        }
+    };
+    
+    // For alternating between outputs when both are available
+    protected boolean useSecondaryNext = false;
 
     public FilteredHopperBlockEntity(BlockPos pos, BlockState state) {
         super(Registry.FILTERED_HOPPER_BLOCK_ENTITY_TYPE.get(), pos, state);
@@ -55,9 +68,15 @@ public class FilteredHopperBlockEntity extends RandomizableContainerBlockEntity 
     protected void loadAdditional(@NotNull CompoundTag nbt, @NotNull HolderLookup.Provider provider) {
         super.loadAdditional(nbt, provider);
         this.transferCooldown = nbt.getInt("TransferCooldown");
-        this.inventory = new ItemStackHandler();
-        if (!this.tryLoadLootTable(nbt)) {
-            this.inventory.deserializeNBT(provider, nbt);
+        this.useSecondaryNext = nbt.getBoolean("UseSecondaryNext");
+        this.filterSlots = new ItemStackHandler(5) {
+            @Override
+            public int getSlotLimit(int slot) {
+                return 1;
+            }
+        };
+        if (nbt.contains("FilterSlots")) {
+            this.filterSlots.deserializeNBT(provider, nbt.getCompound("FilterSlots"));
         }
     }
 
@@ -65,9 +84,8 @@ public class FilteredHopperBlockEntity extends RandomizableContainerBlockEntity 
     public void saveAdditional(@NotNull CompoundTag compound, @NotNull HolderLookup.Provider provider) {
         super.saveAdditional(compound, provider);
         compound.putInt("TransferCooldown", this.transferCooldown);
-        if (!this.trySaveLootTable(compound)) {
-            compound.merge(this.inventory.serializeNBT(provider));
-        }
+        compound.putBoolean("UseSecondaryNext", this.useSecondaryNext);
+        compound.put("FilterSlots", this.filterSlots.serializeNBT(provider));
     }
 
     @Override
@@ -104,60 +122,68 @@ public class FilteredHopperBlockEntity extends RandomizableContainerBlockEntity 
 
     @Override
     public int getContainerSize() {
-        return this.inventory.getSlots();
+        return 5; // Only the filter slots
     }
 
     @Override
     @NotNull
     protected NonNullList<ItemStack> getItems() {
-        NonNullList<ItemStack> items = NonNullList.withSize(this.inventory.getSlots(), ItemStack.EMPTY);
-        for (int i = 0; i < this.inventory.getSlots(); i++) {
-            items.set(i, this.inventory.getStackInSlot(i));
+        NonNullList<ItemStack> items = NonNullList.withSize(5, ItemStack.EMPTY);
+        for (int i = 0; i < 5; i++) {
+            items.set(i, this.filterSlots.getStackInSlot(i));
         }
         return items;
     }
 
     @Override
     protected void setItems(@NotNull NonNullList<ItemStack> itemsIn) {
-        for (int i = 0; i < this.inventory.getSlots(); i++) {
-            if (i < itemsIn.size()) {
-                this.inventory.setStackInSlot(i, itemsIn.get(i));
-            } else {
-                this.inventory.setStackInSlot(i, ItemStack.EMPTY);
+        for (int i = 0; i < 5 && i < itemsIn.size(); i++) {
+            ItemStack stack = itemsIn.get(i).copy();
+            if (!stack.isEmpty()) {
+                stack.setCount(1); // Force ghost slots to only have 1 item
             }
+            this.filterSlots.setStackInSlot(i, stack);
         }
     }
 
     @Override
     public @NotNull ItemStack removeItem(int index, int count) {
-        // Prevent filter slots (0-4) from being extracted by other inventories
-        if (index < 5) {
-            return ItemStack.EMPTY;
-        }
-        this.unpackLootTable(null);
-        ItemStack stack = this.inventory.extractItem(index, count, false);
-        this.setChanged();
-        return stack;
+        // Ghost slots should NEVER be extracted by external systems
+        // They are only for filtering, not actual item storage
+        return ItemStack.EMPTY;
     }
 
     @Override
     public @NotNull ItemStack removeItemNoUpdate(int index) {
-        // Prevent filter slots (0-4) from being extracted by other inventories
-        if (index < 5) {
-            return ItemStack.EMPTY;
-        }
-        this.unpackLootTable(null);
-        ItemStack stack = this.inventory.getStackInSlot(index);
-        this.inventory.setStackInSlot(index, ItemStack.EMPTY);
-        this.setChanged();
-        return stack;
+        // Ghost slots should NEVER be extracted by external systems
+        // They are only for filtering, not actual item storage
+        return ItemStack.EMPTY;
     }
 
     @Override
     public void setItem(int index, @NotNull ItemStack stack) {
-        this.unpackLootTable(null);
-        this.inventory.setStackInSlot(index, stack);
-        this.setChanged();
+        if (index < 5) {
+            ItemStack filterStack = stack.copy();
+            if (!filterStack.isEmpty()) {
+                filterStack.setCount(1); // Force ghost slots to only have 1 item
+            }
+            this.filterSlots.setStackInSlot(index, filterStack);
+            this.setChanged();
+        }
+    }
+
+    @Override
+    public @NotNull ItemStack getItem(int index) {
+        if (index < 5) {
+            return this.filterSlots.getStackInSlot(index);
+        }
+        return ItemStack.EMPTY;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        // We're always "empty" since we don't store items, only filters
+        return true;
     }
 
     public void setTransferCooldown(int ticks) {
@@ -172,9 +198,8 @@ public class FilteredHopperBlockEntity extends RandomizableContainerBlockEntity 
         return this.transferCooldown <= Config.filteredHopperTransferCooldown;
     }
 
-    public static List<Entity> getAllAliveEntitiesAt(Level level, double x, double y, double z, Predicate<? super Entity> filtered) {
-        return level.getEntities((Entity) null, new AABB(x - 0.5D, y - 0.5D, z - 0.5D, x + 0.5D, y + 0.5D, z + 0.5D),
-                entity -> entity.isAlive() && filtered.test(entity));
+    protected long getLastUpdateTime() {
+        return this.tickedGameTime;
     }
 
     public static void tick(Level level, BlockPos pos, BlockState state, FilteredHopperBlockEntity entity) {
@@ -183,34 +208,205 @@ public class FilteredHopperBlockEntity extends RandomizableContainerBlockEntity 
             entity.tickedGameTime = level.getGameTime();
             if (entity.isNotOnTransferCooldown()) {
                 entity.setTransferCooldown(0);
-                entity.updateHopper(entity::pullItems);
+                entity.updateHopper();
             }
         }
     }
 
     public void onItemEntityIsCaptured(ItemEntity itemEntity) {
-        this.updateHopper(() -> captureItem(itemEntity));
-    }
-
-    protected ItemStack putStackInInventoryAllSlots(BlockEntity source, Object destination, Object destInventoryObj, ItemStack stack) {
-        IItemHandler destInventory = (IItemHandler) destInventoryObj;
-        for (int slot = 0; slot < destInventory.getSlots() && !stack.isEmpty(); slot++) {
-            stack = insertStack(source, destination, destInventory, stack, slot);
+        if (isItemAllowedByFilter(itemEntity.getItem())) {
+            if (transferItemEntityToDestination(itemEntity)) {
+                itemEntity.remove(Entity.RemovalReason.DISCARDED);
+            }
         }
-        return stack;
     }
 
-    private ItemStack insertStack(BlockEntity source, Object destination, IItemHandler destInventory, ItemStack stack, int slot) {
-        ItemStack result = stack;
-        if (canInsertItemIntoSlot(destInventory, stack, slot)) {
-            ItemStack remainingStack = destInventory.insertItem(slot, stack, false);
-            return remainingStack;
+    private boolean transferItemEntityToDestination(ItemEntity itemEntity) {
+        ItemStack stack = itemEntity.getItem().copy();
+        Direction facing = this.getBlockState().getValue(HopperBlock.FACING);
+        Optional<Pair<Object, Object>> facingHandler = getItemHandler(this, facing);
+        
+        if (facingHandler.isPresent()) {
+            // If facing down, only use that direction
+            if (facing == Direction.DOWN) {
+                IItemHandler destHandler = (IItemHandler) facingHandler.get().getKey();
+                ItemStack remainder = insertIntoHandler(destHandler, stack);
+                if (remainder.isEmpty()) {
+                    return true;
+                }
+                itemEntity.setItem(remainder);
+                return false;
+            }
+            // If facing sideways, check for hopper below for 50/50 split
+            else {
+                Optional<Pair<Object, Object>> bottomHandler = getItemHandler(this, Direction.DOWN);
+                boolean hasHopperBelow = bottomHandler.isPresent() && isHopper(bottomHandler.get().getValue());
+                
+                if (hasHopperBelow) {
+                    // 50/50 distribution between facing and bottom
+                    IItemHandler primaryDest = useSecondaryNext ? 
+                        (IItemHandler) bottomHandler.get().getKey() : 
+                        (IItemHandler) facingHandler.get().getKey();
+                    IItemHandler secondaryDest = useSecondaryNext ? 
+                        (IItemHandler) facingHandler.get().getKey() : 
+                        (IItemHandler) bottomHandler.get().getKey();
+                    
+                    // Try primary destination first
+                    ItemStack remainder = insertIntoHandler(primaryDest, stack);
+                    if (remainder.isEmpty()) {
+                        useSecondaryNext = !useSecondaryNext; // Alternate for next item
+                        return true;
+                    }
+                    // If primary is full, try secondary
+                    remainder = insertIntoHandler(secondaryDest, remainder);
+                    if (remainder.isEmpty()) {
+                        // Don't toggle since we used fallback
+                        return true;
+                    }
+                    
+                    itemEntity.setItem(remainder);
+                    return false;
+                } else {
+                    // No hopper below, only use facing direction
+                    IItemHandler destHandler = (IItemHandler) facingHandler.get().getKey();
+                    ItemStack remainder = insertIntoHandler(destHandler, stack);
+                    if (remainder.isEmpty()) {
+                        return true;
+                    }
+                    itemEntity.setItem(remainder);
+                    return false;
+                }
+            }
         }
-        return result;
+        
+        return false;
     }
 
-    private boolean canInsertItemIntoSlot(IItemHandler inventory, ItemStack stack, int slot) {
-        return inventory.insertItem(slot, stack, true).getCount() < stack.getCount();
+    private ItemStack insertIntoHandler(IItemHandler handler, ItemStack stack) {
+        ItemStack remaining = stack.copy();
+        for (int slot = 0; slot < handler.getSlots() && !remaining.isEmpty(); slot++) {
+            remaining = handler.insertItem(slot, remaining, false);
+        }
+        return remaining;
+    }
+
+    protected void updateHopper() {
+        if (this.level != null && !this.level.isClientSide) {
+            if (this.isNotOnTransferCooldown() && this.getBlockState().getValue(HopperBlock.ENABLED)) {
+                boolean transferred = pullAndTransferItems();
+                if (transferred) {
+                    this.setTransferCooldown(Config.filteredHopperTransferCooldown);
+                    this.setChanged();
+                }
+            }
+        }
+    }
+
+    protected boolean pullAndTransferItems() {
+        // First try to pull from container above
+        Optional<Pair<Object, Object>> aboveHandler = getItemHandler(this, Direction.UP);
+        if (aboveHandler.isPresent()) {
+            return pullFromHandlerAndTransfer((IItemHandler) aboveHandler.get().getKey());
+        }
+        
+        // If no container above, try to capture item entities
+        BlockPos pos = BlockPos.containing(this.getLevelX(), this.getLevelY() + 1D, this.getLevelZ());
+        BlockState aboveBlockState = this.level.getBlockState(pos);
+        if (aboveBlockState.is(BlockTags.DOES_NOT_BLOCK_HOPPERS) || !aboveBlockState.isCollisionShapeFullBlock(this.level, pos)) {
+            for (ItemEntity itemEntity : HopperBlockEntity.getItemsAtAndAbove(this.level, this)) {
+                if (isItemAllowedByFilter(itemEntity.getItem())) {
+                    if (transferItemEntityToDestination(itemEntity)) {
+                        itemEntity.remove(Entity.RemovalReason.DISCARDED);
+                        return true;
+                    }
+                }
+            }
+        }
+        
+        return false;
+    }
+
+    protected boolean pullFromHandlerAndTransfer(IItemHandler sourceHandler) {
+        Direction facing = this.getBlockState().getValue(HopperBlock.FACING);
+        Optional<Pair<Object, Object>> facingHandler = getItemHandler(this, facing);
+        
+        // Try to pull one item from source
+        for (int sourceSlot = 0; sourceSlot < sourceHandler.getSlots(); sourceSlot++) {
+            ItemStack stack = sourceHandler.extractItem(sourceSlot, 1, true);
+            
+            if (!stack.isEmpty() && isItemAllowedByFilter(stack)) {
+                // If facing down, only use that direction
+                if (facing == Direction.DOWN && facingHandler.isPresent()) {
+                    IItemHandler destHandler = (IItemHandler) facingHandler.get().getKey();
+                    if (insertIntoHandler(destHandler, stack.copy()).isEmpty()) {
+                        sourceHandler.extractItem(sourceSlot, 1, false);
+                        return true;
+                    }
+                }
+                // If facing sideways, check for hopper below for 50/50 split
+                else if (facing != Direction.DOWN && facingHandler.isPresent()) {
+                    Optional<Pair<Object, Object>> bottomHandler = getItemHandler(this, Direction.DOWN);
+                    boolean hasHopperBelow = bottomHandler.isPresent() && isHopper(bottomHandler.get().getValue());
+                    
+                    if (hasHopperBelow) {
+                        // 50/50 distribution between facing and bottom
+                        IItemHandler primaryDest = useSecondaryNext ? 
+                            (IItemHandler) bottomHandler.get().getKey() : 
+                            (IItemHandler) facingHandler.get().getKey();
+                        IItemHandler secondaryDest = useSecondaryNext ? 
+                            (IItemHandler) facingHandler.get().getKey() : 
+                            (IItemHandler) bottomHandler.get().getKey();
+                        
+                        // Try primary destination first
+                        if (insertIntoHandler(primaryDest, stack.copy()).isEmpty()) {
+                            sourceHandler.extractItem(sourceSlot, 1, false);
+                            useSecondaryNext = !useSecondaryNext; // Alternate for next item
+                            return true;
+                        }
+                        // If primary is full, try secondary
+                        if (insertIntoHandler(secondaryDest, stack.copy()).isEmpty()) {
+                            sourceHandler.extractItem(sourceSlot, 1, false);
+                            // Don't toggle since we used fallback
+                            return true;
+                        }
+                    } else {
+                        // No hopper below, only use facing direction
+                        IItemHandler destHandler = (IItemHandler) facingHandler.get().getKey();
+                        if (insertIntoHandler(destHandler, stack.copy()).isEmpty()) {
+                            sourceHandler.extractItem(sourceSlot, 1, false);
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        
+        return false;
+    }
+    
+    private boolean isHopper(Object destination) {
+        return destination instanceof BlockEntity blockEntity && 
+               (blockEntity instanceof HopperBlockEntity || 
+                blockEntity instanceof BaseHopperBlockEntity ||
+                blockEntity instanceof FilteredHopperBlockEntity ||
+                blockEntity instanceof FlopperBlockEntity);
+    }
+
+    private boolean isItemAllowedByFilter(ItemStack itemToCheck) {
+        boolean hasAnyFilter = false;
+        
+        for (int i = 0; i < 5; i++) {
+            ItemStack filterStack = this.filterSlots.getStackInSlot(i);
+            if (!filterStack.isEmpty()) {
+                hasAnyFilter = true;
+                if (ItemStack.isSameItem(filterStack, itemToCheck)) {
+                    return true;
+                }
+            }
+        }
+        
+        // If no filters are set, allow everything
+        return !hasAnyFilter;
     }
 
     protected Optional<Pair<Object, Object>> getItemHandler(Level level, double x, double y, double z, final Direction side) {
@@ -235,8 +431,12 @@ public class FilteredHopperBlockEntity extends RandomizableContainerBlockEntity 
         if (block instanceof WorldlyContainerHolder) {
             return Optional.of(ImmutablePair.of(new SidedInvWrapper(((WorldlyContainerHolder) block).getContainer(state, level, blockpos), side), state));
         }
-        List<Entity> list = getAllAliveEntitiesAt(level, x, y, z,
-                entity -> entity instanceof Container || !(entity instanceof LivingEntity) && entity.getCapability(Capabilities.ItemHandler.ENTITY_AUTOMATION, side) != null);
+        
+        List<Entity> list = level.getEntities((Entity) null, 
+            new AABB(x - 0.5D, y - 0.5D, z - 0.5D, x + 0.5D, y + 0.5D, z + 0.5D),
+            entity -> entity.isAlive() && (entity instanceof Container || 
+                (!(entity instanceof LivingEntity) && entity.getCapability(Capabilities.ItemHandler.ENTITY_AUTOMATION, side) != null)));
+        
         if (!list.isEmpty()) {
             Entity entity = list.get(level.random.nextInt(list.size()));
             IItemHandler cap = entity.getCapability(Capabilities.ItemHandler.ENTITY_AUTOMATION, side);
@@ -247,106 +447,10 @@ public class FilteredHopperBlockEntity extends RandomizableContainerBlockEntity 
                 return Optional.of(ImmutablePair.of(new SidedInvWrapper(container, side), entity));
             }
             if (entity instanceof Container containerEntity) {
-                return Optional.of(ImmutablePair.of(new InvWrapper((containerEntity)), entity));
+                return Optional.of(ImmutablePair.of(new InvWrapper(containerEntity), entity));
             }
         }
         return Optional.empty();
-    }
-
-    protected boolean alternateDestination = false;
-
-    protected boolean pullItemsFromItemHandler(Object itemHandler) {
-        IItemHandler sourceHandler = (IItemHandler) itemHandler;
-        Optional<Pair<Object, Object>> facingHandler = getItemHandler(this, this.getBlockState().getValue(HopperBlock.FACING));
-        Optional<Pair<Object, Object>> bottomHandler = getItemHandler(this, Direction.DOWN);
-
-        for (int sourceSlot = 0; sourceSlot < sourceHandler.getSlots(); sourceSlot++) {
-            ItemStack stack = sourceHandler.extractItem(sourceSlot, 1, true);
-
-            if (!stack.isEmpty() && isItemAllowedByFilter(stack)) {
-                if (facingHandler.isPresent() && bottomHandler.isPresent()) {
-                    IItemHandler primaryDest = alternateDestination ?
-                            (IItemHandler) facingHandler.get().getKey() :
-                            (IItemHandler) bottomHandler.get().getKey();
-
-                    IItemHandler secondaryDest = alternateDestination ?
-                            (IItemHandler) bottomHandler.get().getKey() :
-                            (IItemHandler) facingHandler.get().getKey();
-
-                    if (insertItemDirectlyIntoDestination(primaryDest, stack.copy()).isEmpty()) {
-                        sourceHandler.extractItem(sourceSlot, 1, false);
-                        alternateDestination = !alternateDestination;
-                        return true;
-                    }
-
-                    if (insertItemDirectlyIntoDestination(secondaryDest, stack.copy()).isEmpty()) {
-                        sourceHandler.extractItem(sourceSlot, 1, false);
-                        alternateDestination = !alternateDestination;
-                        return true;
-                    }
-                }
-                else if (facingHandler.isPresent()) {
-                    IItemHandler destHandler = (IItemHandler) facingHandler.get().getKey();
-                    if (insertItemDirectlyIntoDestination(destHandler, stack.copy()).isEmpty()) {
-                        sourceHandler.extractItem(sourceSlot, 1, false);
-                        return true;
-                    }
-                }
-                else if (bottomHandler.isPresent()) {
-                    IItemHandler bottomDest = (IItemHandler) bottomHandler.get().getKey();
-                    if (insertItemDirectlyIntoDestination(bottomDest, stack.copy()).isEmpty()) {
-                        sourceHandler.extractItem(sourceSlot, 1, false);
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    private ItemStack insertItemDirectlyIntoDestination(IItemHandler destInventory, ItemStack stack) {
-        for (int slot = 0; slot < destInventory.getSlots(); slot++) {
-            if (destInventory.isItemValid(slot, stack)) {
-                ItemStack remaining = destInventory.insertItem(slot, stack, false);
-                if (remaining.isEmpty()) {
-                    return ItemStack.EMPTY;
-                }
-            }
-        }
-        return stack;
-    }
-
-
-    private boolean isItemAllowedByFilter(ItemStack itemToCheck) {
-        boolean hasAnyFilter = false;
-
-        for (int i = 0; i < 5; i++) {
-            ItemStack filterStack = this.getItem(i);
-            if (!filterStack.isEmpty()) {
-                hasAnyFilter = true;
-                if (filterStack.getItem() == itemToCheck.getItem()) {
-                    return true;
-                }
-            }
-        }
-
-        return !hasAnyFilter;
-    }
-
-    protected Object getOwnItemHandler() {
-        return this.inventory;
-    }
-
-    protected void updateHopper(Supplier<Boolean> action) {
-        if (this.level != null && !this.level.isClientSide) {
-            if (this.isNotOnTransferCooldown() && this.getBlockState().getValue(HopperBlock.ENABLED)) {
-                boolean flag = action.get();
-                if (flag) {
-                    this.setTransferCooldown(Config.filteredHopperTransferCooldown);
-                    this.setChanged();
-                }
-            }
-        }
     }
 
     private Optional<Pair<Object, Object>> getItemHandler(FilteredHopperBlockEntity hopper, Direction hopperFacing) {
@@ -356,39 +460,38 @@ public class FilteredHopperBlockEntity extends RandomizableContainerBlockEntity 
         return getItemHandler(hopper.getLevel(), x, y, z, hopperFacing.getOpposite());
     }
 
+    public ItemStackHandler getFilterSlots() {
+        return filterSlots;
+    }
 
-    private boolean captureItem(ItemEntity itemEntity) {
-        boolean flag = false;
-        ItemStack itemstack = itemEntity.getItem().copy();
-        if (isItemAllowedByFilter(itemstack)) {
-            ItemStack itemstack1 = putStackInInventoryAllSlots(null, this, getOwnItemHandler(), itemstack);
-            if (itemstack1.isEmpty()) {
-                flag = true;
-                itemEntity.remove(Entity.RemovalReason.DISCARDED);
-            } else {
-                itemEntity.setItem(itemstack1);
+    // Special methods for GUI interaction with ghost slots
+    public ItemStack removeFilterItem(int index) {
+        if (index >= 0 && index < 5) {
+            ItemStack current = this.filterSlots.getStackInSlot(index);
+            if (!current.isEmpty()) {
+                this.filterSlots.setStackInSlot(index, ItemStack.EMPTY);
+                this.setChanged();
+                return current.copy();
             }
         }
-        return flag;
+        return ItemStack.EMPTY;
     }
 
-    protected boolean pullItems() {
-        return getItemHandler(this, Direction.UP)
-                .map(itemHandlerResult -> {
-                        return pullItemsFromItemHandler(itemHandlerResult.getKey());
-                }).orElseGet(() -> {
-                        BlockPos pos = BlockPos.containing(this.getLevelX(), this.getLevelY() + 1D, this.getLevelZ());
-                        BlockState aboveBlockState = this.level.getBlockState(pos);
-                        if (aboveBlockState.is(BlockTags.DOES_NOT_BLOCK_HOPPERS) || !aboveBlockState.isCollisionShapeFullBlock(this.level, pos)) {
-                            for (ItemEntity itementity : HopperBlockEntity.getItemsAtAndAbove(this.level, this)) {
-                                if (this.captureItem(itementity)) {
-                                    return true;
-                                }
-                            }
-                        }
-                    return false;
-                });
+    public void setFilterItem(int index, ItemStack stack) {
+        if (index >= 0 && index < 5) {
+            ItemStack filterStack = stack.copy();
+            if (!filterStack.isEmpty()) {
+                filterStack.setCount(1); // Force ghost slots to only have 1 item
+            }
+            this.filterSlots.setStackInSlot(index, filterStack);
+            this.setChanged();
+        }
     }
 
-
+    public ItemStack getFilterItem(int index) {
+        if (index >= 0 && index < 5) {
+            return this.filterSlots.getStackInSlot(index);
+        }
+        return ItemStack.EMPTY;
+    }
 }
