@@ -29,6 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Objects;
 
 public class FlopperBlock extends HopperBlock {
     public FlopperBlock(Properties properties) {
@@ -37,7 +38,7 @@ public class FlopperBlock extends HopperBlock {
 
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return Registry.FLOPPER_BLOCK_ENTITY_TYPE.get().create(pos, state);
+        return Objects.requireNonNull(Registry.FLOPPER_BLOCK_ENTITY_TYPE.get().create(pos, state));
     }
 
     @Nullable
