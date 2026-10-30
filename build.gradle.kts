@@ -3,10 +3,26 @@ plugins {
 }
 
 group = "com.leclowndu93150.advanced_hoppers"
-version = "2.1.0"
+version = "3.0.0"
 
 prism {
     curseMaven()
+
+    publishing {
+        changelogFile = "CHANGELOG.md"
+
+        curseforge {
+            accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
+            projectId = "1162624"
+        }
+
+        providers.gradleProperty("modrinth_project_id").orNull?.takeIf { it.isNotBlank() }?.let { id ->
+            modrinth {
+                accessToken = providers.environmentVariable("MODRINTH_TOKEN")
+                projectId = id
+            }
+        }
+    }
 
     metadata {
         modId = "advanced_hoppers"
@@ -23,6 +39,10 @@ prism {
         fabric {
             loaderVersion = "0.19.2"
             fabricApi("0.116.12+1.21.1")
+
+            publishingDependencies {
+                requires("fabric-api")
+            }
         }
 
         neoforge {
@@ -41,6 +61,10 @@ prism {
         fabric {
             loaderVersion = "0.19.5"
             fabricApi("0.155.3+26.1.2")
+
+            publishingDependencies {
+                requires("fabric-api")
+            }
         }
 
         neoforge {
