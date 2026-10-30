@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    "I I",
+    "IFI",
+    " I "
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "F": "advanced_hoppers:flopper"
+  },
+  "result": {
+    "id": "advanced_hoppers:iron_flopper"
+  }
+}

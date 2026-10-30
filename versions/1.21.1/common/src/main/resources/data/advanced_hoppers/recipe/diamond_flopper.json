@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    "D D",
+    "DFD",
+    " D "
+  ],
+  "key": {
+    "D": {
+      "item": "minecraft:diamond"
+    },
+    "F": {
+      "item": "advanced_hoppers:golden_flopper"
+    }
+  },
+  "result": {
+    "id": "advanced_hoppers:diamond_flopper",
+    "count": 1
+  }
+}

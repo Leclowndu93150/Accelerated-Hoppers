@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    "C C",
+    "CHC",
+    " C "
+  ],
+  "key": {
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
+    "H": {
+      "item": "advanced_hoppers:wooden_hopper"
+    }
+  },
+  "result": {
+    "id": "advanced_hoppers:copper_hopper",
+    "count": 1
+  }
+}

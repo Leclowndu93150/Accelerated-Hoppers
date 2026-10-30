@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    "P P",
+    "PHP",
+    " S "
+  ],
+  "key": {
+    "P": "minecraft:purpur_block",
+    "H": "minecraft:hopper",
+    "S": "minecraft:shulker_shell"
+  },
+  "result": {
+    "id": "advanced_hoppers:upward_hopper"
+  }
+}

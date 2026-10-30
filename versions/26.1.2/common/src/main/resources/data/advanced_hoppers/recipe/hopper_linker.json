@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    " P ",
+    "C C",
+    " C "
+  ],
+  "key": {
+    "P": "minecraft:ender_pearl",
+    "C": "minecraft:copper_ingot"
+  },
+  "result": {
+    "id": "advanced_hoppers:hopper_linker"
+  }
+}

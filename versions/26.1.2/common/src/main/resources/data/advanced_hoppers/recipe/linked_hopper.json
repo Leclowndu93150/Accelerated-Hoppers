@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    "E E",
+    "EHE",
+    " Y "
+  ],
+  "key": {
+    "E": "minecraft:end_stone_bricks",
+    "H": "minecraft:hopper",
+    "Y": "minecraft:ender_eye"
+  },
+  "result": {
+    "id": "advanced_hoppers:linked_hopper"
+  }
+}

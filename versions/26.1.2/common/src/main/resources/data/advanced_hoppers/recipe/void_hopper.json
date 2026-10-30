@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    "O O",
+    "OHO",
+    " E "
+  ],
+  "key": {
+    "O": "minecraft:obsidian",
+    "H": "minecraft:hopper",
+    "E": "minecraft:ender_pearl"
+  },
+  "result": {
+    "id": "advanced_hoppers:void_hopper"
+  }
+}

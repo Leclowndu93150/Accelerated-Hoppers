@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    "T T",
+    "THT",
+    " B "
+  ],
+  "key": {
+    "T": {
+      "item": "minecraft:tuff_bricks"
+    },
+    "H": {
+      "item": "advanced_hoppers:iron_hopper"
+    },
+    "B": {
+      "item": "minecraft:breeze_rod"
+    }
+  },
+  "result": {
+    "id": "advanced_hoppers:vacuum_hopper",
+    "count": 1
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    "W W",
+    "WCW",
+    " W "
+  ],
+  "key": {
+    "W": "minecraft:gold_ingot",
+    "C": "advanced_hoppers:iron_hopper"
+  },
+  "result": {
+    "id": "advanced_hoppers:golden_hopper"
+  }
+}

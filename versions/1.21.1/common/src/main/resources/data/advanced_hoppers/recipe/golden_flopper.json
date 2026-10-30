@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    "G G",
+    "GFG",
+    " G "
+  ],
+  "key": {
+    "G": {
+      "item": "minecraft:gold_ingot"
+    },
+    "F": {
+      "item": "advanced_hoppers:iron_flopper"
+    }
+  },
+  "result": {
+    "id": "advanced_hoppers:golden_flopper",
+    "count": 1
+  }
+}

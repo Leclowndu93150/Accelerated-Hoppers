@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    "Q Q",
+    "QHQ",
+    " G "
+  ],
+  "key": {
+    "Q": "minecraft:quartz_block",
+    "H": "minecraft:hopper",
+    "G": "minecraft:gold_ingot"
+  },
+  "result": {
+    "id": "advanced_hoppers:splitter_hopper"
+  }
+}

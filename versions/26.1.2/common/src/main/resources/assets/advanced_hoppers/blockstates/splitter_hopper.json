@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=down": {
+      "model": "advanced_hoppers:block/splitter_hopper"
+    },
+    "facing=east": {
+      "model": "advanced_hoppers:block/splitter_hopper"
+    },
+    "facing=north": {
+      "model": "advanced_hoppers:block/splitter_hopper"
+    },
+    "facing=south": {
+      "model": "advanced_hoppers:block/splitter_hopper"
+    },
+    "facing=west": {
+      "model": "advanced_hoppers:block/splitter_hopper"
+    }
+  }
+}

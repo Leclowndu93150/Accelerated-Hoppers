@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    "WAW",
+    "WFW",
+    " W "
+  ],
+  "key": {
+    "W": {
+      "item": "minecraft:emerald"
+    },
+    "A": {
+      "item": "minecraft:comparator"
+    },
+    "F": {
+      "item": "advanced_hoppers:flopper"
+    }
+  },
+  "result": {
+    "id": "advanced_hoppers:filtered_flopper",
+    "count": 1
+  }
+}

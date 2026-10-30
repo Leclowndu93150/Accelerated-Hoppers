@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    "F",
+    "D"
+  ],
+  "key": {
+    "F": "advanced_hoppers:flopper",
+    "D": "minecraft:dispenser"
+  },
+  "result": {
+    "id": "advanced_hoppers:placing_flopper"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "replace": false,
+  "values": [
+    "advanced_hoppers:iron_hopper",
+    "advanced_hoppers:golden_hopper",
+    "advanced_hoppers:diamond_hopper",
+    "advanced_hoppers:filtered_hopper",
+    "advanced_hoppers:netherite_hopper",
+    "advanced_hoppers:flopper",
+    "advanced_hoppers:copper_hopper",
+    "advanced_hoppers:exposed_copper_hopper",
+    "advanced_hoppers:weathered_copper_hopper",
+    "advanced_hoppers:oxidized_copper_hopper",
+    "advanced_hoppers:stack_hopper",
+    "advanced_hoppers:void_hopper",
+    "advanced_hoppers:vacuum_hopper",
+    "advanced_hoppers:pulse_hopper",
+    "advanced_hoppers:linked_hopper",
+    "advanced_hoppers:xp_hopper",
+    "advanced_hoppers:iron_flopper",
+    "advanced_hoppers:golden_flopper",
+    "advanced_hoppers:diamond_flopper",
+    "advanced_hoppers:filtered_flopper",
+    "advanced_hoppers:placing_flopper",
+    "advanced_hoppers:waxed_copper_hopper",
+    "advanced_hoppers:waxed_exposed_copper_hopper",
+    "advanced_hoppers:waxed_weathered_copper_hopper",
+    "advanced_hoppers:waxed_oxidized_copper_hopper",
+    "advanced_hoppers:splitter_hopper",
+    "advanced_hoppers:upward_hopper"
+  ]
+}

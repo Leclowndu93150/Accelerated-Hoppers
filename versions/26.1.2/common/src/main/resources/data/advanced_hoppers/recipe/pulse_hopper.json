@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    "S S",
+    "SHS",
+    " L "
+  ],
+  "key": {
+    "S": "minecraft:smooth_stone",
+    "H": "minecraft:hopper",
+    "L": "minecraft:redstone_lamp"
+  },
+  "result": {
+    "id": "advanced_hoppers:pulse_hopper"
+  }
+}

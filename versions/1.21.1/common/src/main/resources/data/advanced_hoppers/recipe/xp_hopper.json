@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": [
+    "S S",
+    "SHS",
+    " C "
+  ],
+  "key": {
+    "S": {
+      "item": "minecraft:sculk"
+    },
+    "H": {
+      "item": "minecraft:hopper"
+    },
+    "C": {
+      "item": "minecraft:sculk_catalyst"
+    }
+  },
+  "result": {
+    "id": "advanced_hoppers:xp_hopper",
+    "count": 1
+  }
+}

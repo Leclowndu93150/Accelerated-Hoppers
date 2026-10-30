@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "redstone",
+  "ingredients": [
+    "advanced_hoppers:copper_hopper",
+    "minecraft:honeycomb"
+  ],
+  "result": {
+    "id": "advanced_hoppers:waxed_copper_hopper"
+  }
+}
