@@ -1,0 +1,16 @@
+{
+  "values": {
+    "advanced_hoppers:copper_hopper": {
+      "waxed": "advanced_hoppers:waxed_copper_hopper"
+    },
+    "advanced_hoppers:exposed_copper_hopper": {
+      "waxed": "advanced_hoppers:waxed_exposed_copper_hopper"
+    },
+    "advanced_hoppers:weathered_copper_hopper": {
+      "waxed": "advanced_hoppers:waxed_weathered_copper_hopper"
+    },
+    "advanced_hoppers:oxidized_copper_hopper": {
+      "waxed": "advanced_hoppers:waxed_oxidized_copper_hopper"
+    }
+  }
+}

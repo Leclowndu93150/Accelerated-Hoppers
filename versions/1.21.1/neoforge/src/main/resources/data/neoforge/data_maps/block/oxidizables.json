@@ -1,0 +1,13 @@
+{
+  "values": {
+    "advanced_hoppers:copper_hopper": {
+      "next_oxidation_stage": "advanced_hoppers:exposed_copper_hopper"
+    },
+    "advanced_hoppers:exposed_copper_hopper": {
+      "next_oxidation_stage": "advanced_hoppers:weathered_copper_hopper"
+    },
+    "advanced_hoppers:weathered_copper_hopper": {
+      "next_oxidation_stage": "advanced_hoppers:oxidized_copper_hopper"
+    }
+  }
+}
